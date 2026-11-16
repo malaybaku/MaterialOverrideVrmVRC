@@ -1,0 +1,55 @@
+{
+  "name": "MaterialOverrideVrmVRC.Editor",
+  "references": [
+    "MaterialOverrideVrmVRC.Runtime",
+    "MaterialOverridableVrm.Runtime",
+    "MaterialOverridableVrm.Editor",
+    "VRM10",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "nadena.dev.ndmf",
+    "nadena.dev.ndmf.runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "versionDefines": [
+    {
+      "define": "MOUV_HAS_CORE",
+      "expression": "[0.3.3,0.4.0)",
+      "name": "com.baxter.material-override-vrm"
+    },
+    {
+      "define": "MOUV_HAS_GLTF",
+      "expression": "0.131.4",
+      "name": "com.vrmc.gltf"
+    },
+    {
+      "define": "MOUV_HAS_VRM",
+      "expression": "0.131.4",
+      "name": "com.vrmc.vrm"
+    },
+    {
+      "define": "MOUV_HAS_URP",
+      "expression": "[14.0.10,15.0.0)",
+      "name": "com.unity.render-pipelines.universal"
+    },
+    {
+      "define": "MOUV_HAS_NDMF",
+      "expression": "[1.14.0,2.0.0)",
+      "name": "nadena.dev.ndmf"
+    },
+    {
+      "name": "com.vrchat.avatars",
+      "expression": "3.7.0",
+      "define": "MOUV_HAS_VRC_AVATARS"
+    }
+  ],
+  "defineConstraints": [
+    "MOUV_HAS_CORE",
+    "MOUV_HAS_GLTF",
+    "MOUV_HAS_VRM",
+    "MOUV_HAS_URP",
+    "MOUV_HAS_NDMF",
+    "MOUV_HAS_VRC_AVATARS"
+  ]
+}

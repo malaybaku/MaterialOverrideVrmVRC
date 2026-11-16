@@ -1,0 +1,21 @@
+{
+  "name": "com.baxter.material-override-vrm-vrc",
+  "version": "0.1.0",
+  "displayName": "Material Override VRM for VRChat",
+  "unity": "2022.3",
+  "description": "Export material overrides from VRChat avatars alongside an exported VRM.",
+  "author": {
+    "name": "Baxter",
+    "url": "https://github.com/malaybaku"
+  },
+  "vpmDependencies": {
+    "com.github.hkrn.ndmf-vrm-exporter": ">=1.4.0",
+    "nadena.dev.ndmf": ">=1.14.0",
+    "com.baxter.material-override-vrm": ">=0.3.3 <0.4.0",
+    "com.vrchat.avatars": ">=3.7.0"
+  },
+  "license": "Zlib",
+  "documentationUrl": "https://github.com/malaybaku/MaterialOverrideVrmVRC#readme",
+  "changelogUrl": "https://github.com/malaybaku/MaterialOverrideVrmVRC/blob/main/CHANGELOG.md",
+  "repo": "https://malaybaku.github.io/baku-vpm/index.json"
+}

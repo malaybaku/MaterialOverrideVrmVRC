@@ -1,0 +1,6 @@
+{
+  "name": "MaterialOverrideVrmVRC.Setup.Editor",
+  "includePlatforms": ["Editor"],
+  "references": [],
+  "autoReferenced": true
+}
