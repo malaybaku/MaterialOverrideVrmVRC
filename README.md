@@ -1,35 +1,34 @@
 # Material Override VRM for VRChat
 
-VRChat向けにセットアップしたアバターから、[VMagicMirror](https://malaybaku.github.io/VMagicMirror/)で使える `.mouv`（Material Override VRM）を出力するUnity Editor用パッケージです。VRMに変換したモデルと、MToonへの変換前のマテリアルを組み合わせます。
+VRChat向けにセットアップしたアバターから、[VMagicMirror](https://malaybaku.github.io/VMagicMirror/)で使えるアバター形式である `.mouv`（Material Override VRM）を出力するUnity Editor用パッケージです。
 
-Unity 2022.3のVRChatアバタープロジェクト向けです。
+本パッケージを通じて、MToonに変換する前のマテリアルをモデルに適用してVMagicMirrorで表示できます。
+
+Unity 2022.3のVRChatアバタープロジェクト向けパッケージです。
 
 ## 導入と使い方
 
 1. [baxter's VPM Packages](https://malaybaku.github.io/baku-vpm/)をVCC / ALCOMへ追加し、本パッケージをインストールします。
-2. Unityの **Tools > Material Override VRM > For VRChat: Setup** を開き、依存パッケージの準備を行います。UniVRMは画面の案内に従って手動で導入します。
-3. **For VRChat: Export Avatar** を開き、通常は **まとめてエクスポート** を使います。
+2. Unityの **Tools > Material Override VRM > For VRChat: Setup** を開き、依存パッケージのセットアップを確認します。このステップではUniVRMのインストールが必要になります。
+3. **For VRChat: Export Avatar** を開いてエクスポート操作を行います。
 
-操作手順、マテリアル情報の保管・上書きについては、**[使い方](README_usage.md)**を参照してください。
+詳細な操作手順は [使い方](README_usage.md) を参照してください。
 
-不具合報告は[GitHub Issues](https://github.com/malaybaku/MaterialOverrideVrmVRC/issues)へお願いします。[変更履歴](CHANGELOG.md)も参照できます。
+不具合報告は[GitHub Issues](https://github.com/malaybaku/MaterialOverrideVrmVRC/issues)へお願いします。
 
 ## ライセンス・依存パッケージ
 
-本パッケージのコードは **[zlib License](LICENSE)** です。依存パッケージには、それぞれのライセンス・利用条件が適用されます。詳細は各リポジトリや配布物を参照してください。
+本パッケージは **[zlib License](LICENSE)** で公開されています。依存パッケージには、それぞれのライセンス・利用条件が適用されます。
 
 | パッケージ | リポジトリ |
 | --- | --- |
 | NDMF | [bdunderscore/ndmf](https://github.com/bdunderscore/ndmf) |
 | NDMF VRM Exporter | [hkrn/ndmf-vrm-exporter](https://github.com/hkrn/ndmf-vrm-exporter) |
 | UniVRM（UniGLTF / VRM 1.0） | [vrm-c/UniVRM](https://github.com/vrm-c/UniVRM) |
-| Universal Render Pipeline | [Unity-Technologies/Graphics](https://github.com/Unity-Technologies/Graphics) |
 | VRChat SDK - Avatars | [vrchat/packages](https://github.com/vrchat/packages)（配布リポジトリ） |
 
-[lilToon](https://github.com/lilxyzw/lilToon)を使用するアバター向けのシェーダー再生成にも対応しています。lilToon自体は本パッケージの必須依存ではありません。
-
-アバター・マテリアル・テクスチャの利用条件は、本パッケージのライセンスとは別に確認してください。
+また、本パッケージはUniversal Render Pipeline (URP)向けのファイルを出力するため、[lilToon](https://github.com/lilxyzw/lilToon)を使用するアバターに対してはシェーダーの再生成処理にも対応しています。
 
 ## 開発者向け
 
-[開発・メンテナンス](MAINTENANCE.md) / [エクスポート処理の拡張](README_extensions.md)
+とくに本パッケージのエクスポート処理のなかでマテリアル/シェーダーをエクスポート前に調整する処理をフックしたい場合、 [エクスポート処理の拡張](https://github.com/malaybaku/MaterialOverrideVrmVRC/blob/main/README_extensions.md) を参照してください。

@@ -21,7 +21,7 @@ def main():
     for folder in ('Editor', 'Setup', 'Runtime'):
         files.extend(p for p in (ROOT / folder).rglob('*') if p.is_file())
         files.append(ROOT / f'{folder}.meta')
-    for filename in ('LICENSE', 'README.md', 'README_usage.md', 'README_extensions.md', 'MAINTENANCE.md', 'CHANGELOG.md', 'package.json.meta'):
+    for filename in ('LICENSE', 'README.md', 'README_usage.md', 'package.json.meta'):
         files.append(ROOT / filename)
         meta = ROOT / f'{filename}.meta'
         if meta.exists():

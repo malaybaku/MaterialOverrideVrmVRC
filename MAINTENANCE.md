@@ -89,6 +89,8 @@ python scripts~/build_package.py
 
 `dist~/` にVPM用ZIPとリリース用 `package.json` を生成します。ビルドは公開操作を行いません。ビルドスクリプトの許可リストとZIP内容を確認し、`.meta` も含めて配布します。GitHubで読む文書とZIP同梱文書は同一とは限りません。
 
+文書類はREADME.md・README_usage.md・LICENSEと各.metaを同梱します。CHANGELOG.md・MAINTENANCE.md・README_extensions.mdと各.metaはZIPへ含めず、GitHub上で提供します。
+
 初版はベータ版0.1.0を予定しています。タグ名は生成する配布URLと一致させてください。現在のスクリプトは `releases/download/0.1.0/…` を生成し、`v` 接頭辞は付けません。
 
 公開時には次を確認します。
