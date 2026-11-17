@@ -105,7 +105,7 @@ namespace Baku.MaterialOverrideVrmVRC
             if (context.PipelineRestored && context.Items.ContainsKey(restoreKey)) Refresh();
             return Task.CompletedTask;
         }
-        static void Refresh()
+        internal static void Refresh()
         {
             if (!EditorApplication.ExecuteMenuItem("Assets/lilToon/[Shader] Refresh shaders"))
                 throw new MouvBatchExportException("lilToonのシェーダー再生成メニューを実行できませんでした。",

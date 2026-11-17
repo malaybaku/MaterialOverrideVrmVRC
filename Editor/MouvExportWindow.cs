@@ -43,6 +43,7 @@ namespace Baku.MaterialOverrideVrmVRC
         }
         [SerializeField] bool useLatestSnapshot = true;
         bool busy, showAdvanced;
+        MouvMaterialPreview materialPreview;
         BuildUIElement exporterUI;
         VisualElement exporterHost;
         Label exporterCaption, exporterUnavailable;
@@ -79,7 +80,24 @@ namespace Baku.MaterialOverrideVrmVRC
             RefreshBatchApi();
         }
 
-        void OnDisable() => MouvMaterialCapture.Captured -= OnSnapshotCaptured;
+        void OnDisable()
+        {
+            MouvMaterialCapture.Captured -= OnSnapshotCaptured;
+            StopMaterialPreview();
+        }
+
+        void StopMaterialPreview()
+        {
+            var preview = materialPreview;
+            materialPreview = null;
+            preview?.Dispose();
+        }
+
+        void StartMaterialPreview()
+        {
+            StopMaterialPreview();
+            materialPreview = MouvMaterialPreview.Start(vrm, snapshot, urp);
+        }
 
         public void CreateGUI()
         {
@@ -252,7 +270,7 @@ namespace Baku.MaterialOverrideVrmVRC
                 var previousMethod = exportMethod;
                 exportMethod = (ExportMethod)EditorGUILayout.Popup(Text("エクスポート方法", "Export method"), (int)exportMethod,
                     new[] { Text("まとめてエクスポート", "Export all at once"), Text("ステップごとにエクスポート", "Export step by step") });
-                if (previousMethod != exportMethod) ApplyExportMethod();
+                if (previousMethod != exportMethod) { StopMaterialPreview(); ApplyExportMethod(); }
             }
             GUILayout.Space(EditorGUIUtility.singleLineHeight * 0.7f);
         }
@@ -441,12 +459,12 @@ namespace Baku.MaterialOverrideVrmVRC
                         else if (selectedVrm != vrmPrefab)
                             SetMessage("VRM10Instanceが付いた、インポート済みの.vrmアセットを指定してください。",
                                 "Select an imported .vrm asset with a VRM10Instance component.", MessageType.Warning);
-                        if (vrm != previousVrm) RefreshSnapshotSelection();
+                        if (vrm != previousVrm) { StopMaterialPreview(); RefreshSnapshotSelection(); }
                         var previousAutomatic = useLatestSnapshot;
                         useLatestSnapshot = EditorGUILayout.Popup(Text("マテリアルの指定方法", "Material selection method"), useLatestSnapshot ? 0 : 1,
                             new[] { Text("自動で選択 (VRMのアバター名と一致する最新)", "Automatic (latest matching the VRM avatar name)"),
                                 Text("手動で選択", "Manual") }) == 0;
-                        if (previousAutomatic != useLatestSnapshot) RefreshSnapshotSelection();
+                        if (previousAutomatic != useLatestSnapshot) { StopMaterialPreview(); RefreshSnapshotSelection(); }
                         using (new EditorGUI.DisabledScope(!useLatestSnapshot))
                         {
                             var rowRect = EditorGUILayout.GetControlRect();
@@ -464,8 +482,30 @@ namespace Baku.MaterialOverrideVrmVRC
                         {
                             GUILayout.Space(EditorGUIUtility.singleLineHeight * 0.2f);
                             var selected = (MaterialSnapshot)EditorGUILayout.ObjectField(Text("手動選択マテリアル", "Manual materials"), manualSnapshot, typeof(MaterialSnapshot), false);
-                            if (selected != manualSnapshot) { manualSnapshot = selected; RefreshSnapshotSelection(); }
+                            if (selected != manualSnapshot) { StopMaterialPreview(); manualSnapshot = selected; RefreshSnapshotSelection(); }
                             DrawSnapshotMetadata(manualSnapshot);
+                        }
+                        GUILayout.Space(EditorGUIUtility.singleLineHeight * 0.5f);
+                        if (materialPreview != null && materialPreview.IsActive)
+                        {
+                            var previewHelpStyle = new GUIStyle(EditorStyles.wordWrappedLabel);
+                            previewHelpStyle.normal.textColor = EditorGUIUtility.isProSkin
+                                ? new Color(1f, 0.7f, 0.3f) : new Color(0.65f, 0.32f, 0f);
+                            GUILayout.Label(Text("シーン上にマテリアルを適用したモデルをプレビュー表示中です。\n「Material preview:」オブジェクトの外観を確認してください。\n「プレビューを終了」でプレビューを終了します。",
+                                "A model with the materials applied is being previewed in the scene.\nCheck the appearance of the \"Material preview:\" object.\nSelect \"Stop preview\" to end the preview."), previewHelpStyle);
+                        }
+                        using (new EditorGUI.DisabledScope(!vrm || !snapshot || EditorApplication.isPlayingOrWillChangePlaymode))
+                        {
+                            if (GUILayout.Button(materialPreview != null && materialPreview.IsActive
+                                ? Text("プレビューを終了", "Stop preview") : Text("URPでプレビューを開始", "Start preview in URP")))
+                            {
+                                try
+                                {
+                                    if (materialPreview != null && materialPreview.IsActive) StopMaterialPreview();
+                                    else StartMaterialPreview();
+                                }
+                                catch (Exception error) { SetError(error); Debug.LogException(error); }
+                            }
                         }
 
                         DrawAdvancedSettings();
@@ -573,6 +613,7 @@ namespace Baku.MaterialOverrideVrmVRC
 
         async Task ExportIndividualAsync(string output)
         {
+            StopMaterialPreview();
             GameObject instance = null;
             try
             {
@@ -654,7 +695,7 @@ namespace Baku.MaterialOverrideVrmVRC
             }
         }
 
-        static RenderPipelineAsset CreateUrp()
+        internal static RenderPipelineAsset CreateUrp()
         {
             Directory.CreateDirectory("Assets/MouvSettings");
             AssetDatabase.Refresh();
