@@ -9,10 +9,10 @@ Unity 2022.3のVRChatアバタープロジェクト向けパッケージです�
 ## 導入と使い方
 
 1. [baxter's VPM Packages](https://malaybaku.github.io/baku-vpm/)をVCC / ALCOMへ追加し、本パッケージをインストールします。
-2. Unityの **Tools > Material Override VRM > For VRChat: Setup** を開き、依存パッケージのセットアップを確認します。このステップではUniVRMのインストールが必要になります。
-3. **For VRChat: Export Avatar** を開いてエクスポート操作を行います。
+2. Unityの **Tools > Material Override VRM > For VRChat: Setup** を開き、依存パッケージのセットアップを行います。
+3. **For VRChat: Export Avatar** を開き、エクスポート操作を行います。
 
-詳細な操作手順は [使い方](README_usage.md) を参照してください。
+詳しくは [README_usage](README_usage.md) ページを参照してください。
 
 不具合報告は[GitHub Issues](https://github.com/malaybaku/MaterialOverrideVrmVRC/issues)へお願いします。
 
