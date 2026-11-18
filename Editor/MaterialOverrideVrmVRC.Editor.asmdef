@@ -15,7 +15,7 @@
   "versionDefines": [
     {
       "define": "MOUV_HAS_CORE",
-      "expression": "[0.3.3,0.4.0)",
+      "expression": "[0.3.4,0.4.0)",
       "name": "com.baxter.material-override-vrm"
     },
     {

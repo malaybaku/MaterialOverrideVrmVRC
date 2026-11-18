@@ -12,7 +12,7 @@ VPM一覧は別リポジトリの[baku-vpm](https://github.com/malaybaku/baku-vp
 
 ## 依存・コンパイル
 
-- Core: 0.3.3以上、0.4.0未満。
+- Core: 0.3.4以上、0.4.0未満。
 - UniGLTF / VRM 1.0: 0.131.4以上。案内する導入版は0.131.4で、対応判定に上限は設けません。
 - URP: 14.0.10以上、15.0.0未満。
 - NDMF: 1.14.0以上、2.0.0未満。
@@ -99,5 +99,5 @@ python scripts~/build_package.py
 2. READMEの「公開準備中」「掲載後」の注記を更新し、CHANGELOGを公開版向けに整理する。
 3. 公開用Git履歴・remote・mainを整え、ソースを公開する。
 4. 最新ソースからZIPを再生成し、タグ・リリース・添付ZIPを揃える。
-5. `baku-vpm/source.json` に公開ZIPを追加し、Core 0.3.3以上も一覧から解決できる状態でPagesを配信する。
+5. `baku-vpm/source.json` に公開ZIPを追加し、Core 0.3.4以上も一覧から解決できる状態でPagesを配信する。
 6. VCC / ALCOMで実際の公開パッケージを導入し、検証プロジェクトのローカル参照も公開版へ切り替える。

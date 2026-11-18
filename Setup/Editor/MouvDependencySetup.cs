@@ -27,7 +27,7 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
             new Requirement("com.vrmc.gltf", "UniGLTF", "0.131.4", gitUrl: "https://github.com/vrm-c/UniVRM.git?path=/Packages/UniGLTF#v0.131.4"),
             new Requirement("com.vrmc.vrm", "VRM-1.0", "0.131.4", gitUrl: "https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM10#v0.131.4"),
             new Requirement("com.unity.render-pipelines.universal", "Universal RP", "14.0.10", "15.0.0"),
-            new Requirement("com.baxter.material-override-vrm", "Material Overridable VRM (Core Library)", "0.3.3", "0.4.0"),
+            new Requirement("com.baxter.material-override-vrm", "Material Overridable VRM (Core Library)", "0.3.4", "0.4.0"),
             new Requirement("nadena.dev.ndmf", "NDMF", "1.14.0", "2.0.0"),
             new Requirement("com.github.hkrn.ndmf-vrm-exporter", "NDMF VRM Exporter", "1.4.0"),
             new Requirement("com.vrchat.avatars", "VRChat SDK - Avatars", "3.7.0")

@@ -11,7 +11,7 @@
   "vpmDependencies": {
     "com.github.hkrn.ndmf-vrm-exporter": ">=1.4.0",
     "nadena.dev.ndmf": ">=1.14.0",
-    "com.baxter.material-override-vrm": ">=0.3.3 <0.4.0",
+    "com.baxter.material-override-vrm": ">=0.3.4 <0.4.0",
     "com.vrchat.avatars": ">=3.7.0"
   },
   "license": "Zlib",
