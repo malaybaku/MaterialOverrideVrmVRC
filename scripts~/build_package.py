@@ -1,4 +1,4 @@
-"""Build an allowlisted VPM ZIP and release manifest; never publish anything."""
+"""Build an allowlisted VPM ZIP; never publish anything."""
 import argparse
 import json
 from pathlib import Path
@@ -32,7 +32,6 @@ def main():
             if path.is_symlink():
                 raise ValueError(f'Symlink is not allowed: {path}')
             bundle.write(path, path.relative_to(ROOT).as_posix())
-    (output / 'package.json').write_bytes(encoded)
     print(output / archive)
 
 if __name__ == '__main__':
