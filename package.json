@@ -1,6 +1,6 @@
 {
   "name": "com.baxter.material-override-vrm-vrc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "Material Override VRM for VRChat",
   "unity": "2022.3",
   "description": "Export material overrides from VRChat avatars alongside an exported VRM.",
