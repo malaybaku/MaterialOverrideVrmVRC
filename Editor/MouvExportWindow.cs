@@ -618,8 +618,6 @@ namespace Baku.MaterialOverrideVrmVRC
             try
             {
                 var prepared = Prepare(out instance);
-                if (prepared.RendererBindings.Any(b => b == null || !b.ReplacementMaterial))
-                    throw new LocalizedExportException("未解決のマテリアル対応を修正してください。", "Resolve the unmatched material slots.");
                 await ExportAsync(prepared, output, urp, keepUrp, snapshot);
             }
             finally { if (instance) DestroyImmediate(instance); }

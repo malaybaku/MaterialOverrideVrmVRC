@@ -92,6 +92,8 @@ namespace Baku.MaterialOverrideVrmVRC
             public int Slot;
             public string OriginalMaterialName;
             public Material Material;
+            [Tooltip("Keep the material from the VRM for this slot in the URP preview and exported .mouv.")]
+            public bool UseVrmMaterial;
         }
     }
 }

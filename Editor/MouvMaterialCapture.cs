@@ -173,17 +173,37 @@ namespace Baku.MaterialOverrideVrmVRC
         public static void Apply(MaterialSnapshot snapshot, MaterialOverrideSource source)
         {
             if (!snapshot || !source) throw new ArgumentNullException();
+            // UniVRM may put the exported avatar under a wrapper alongside nodes without meshes.
+            var avatarRoot = snapshot.Entries.Any(e => e.UseVrmMaterial)
+                ? source.transform.Cast<Transform>().FirstOrDefault(child =>
+                    source.RendererBindings.All(b => b.Renderer.transform.IsChildOf(child)))
+                : null;
             int unresolved = 0;
             foreach (var binding in source.RendererBindings)
             {
                 var path = AnimationUtility.CalculateTransformPath(binding.Renderer.transform, source.transform);
-                var exact = snapshot.Entries.Where(e => e.RendererPath == path && e.RendererType == binding.Renderer.GetType().FullName && e.Slot == binding.MaterialSlot && binding.TargetMaterial && e.OriginalMaterialName == Normalize(binding.TargetMaterial.name)).ToArray();
-                Material candidate = exact.Length == 1 ? exact[0].Material : null;
-                if (!candidate && binding.TargetMaterial)
+                var named = binding.TargetMaterial
+                    ? snapshot.Entries.Where(e => e.OriginalMaterialName == Normalize(binding.TargetMaterial.name)).ToArray()
+                    : Array.Empty<MaterialSnapshot.Entry>();
+                var sameSlot = named.Where(e => e.RendererType == binding.Renderer.GetType().FullName && e.Slot == binding.MaterialSlot).ToArray();
+                var exact = sameSlot.Where(e => e.RendererPath == path).ToArray();
+                var hasNamedOptOut = named.Any(e => e.UseVrmMaterial);
+                if (exact.Length == 0 && hasNamedOptOut && avatarRoot)
                 {
-                    var named = snapshot.Entries.Where(e => e.OriginalMaterialName == Normalize(binding.TargetMaterial.name))
-                        .Select(e => e.Material).Where(m => m).Distinct().ToArray();
-                    if (named.Length == 1) candidate = named[0];
+                    var avatarPath = AnimationUtility.CalculateTransformPath(binding.Renderer.transform, avatarRoot);
+                    exact = sameSlot.Where(e => e.RendererPath == avatarPath).ToArray();
+                }
+                if (exact.Length == 1 && exact[0].UseVrmMaterial)
+                {
+                    binding.ReplacementMaterial = null;
+                    continue;
+                }
+                Material candidate = exact.Length == 1 ? exact[0].Material : null;
+                // A name match alone cannot identify which slot opted out.
+                if (!candidate && (exact.Length == 1 || !hasNamedOptOut))
+                {
+                    var materials = named.Where(e => !e.UseVrmMaterial).Select(e => e.Material).Where(m => m).Distinct().ToArray();
+                    if (materials.Length == 1) candidate = materials[0];
                 }
                 binding.ReplacementMaterial = candidate;
                 if (!candidate) unresolved++;
