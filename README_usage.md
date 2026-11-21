@@ -33,9 +33,9 @@
 
 ### セットアップの基本手順
 
-Unity Editorで **Tools > Material Override VRM > For VRChat: Setup** を開き、必要なパッケージがインストールされているか確認します。
+Unity Editorで **Tools > Material Override VRM > For VRChat: Setup** からセットアップウィンドウを開き、必要なパッケージがインストールされているか確認します。
 
-とくに [UniVRM](https://github.com/vrm-c/UniVRM) と [NDMF VRM Exporter](https://github.com/hkrn/ndmf-vrm-exporter) がインストールされていない場合、それぞれウィンドウ上の案内に沿ってインストールを行います。
+とくに [UniVRM](https://github.com/vrm-c/UniVRM) と [NDMF VRM Exporter](https://github.com/hkrn/ndmf-vrm-exporter) がインストールされていない場合、それぞれ案内に沿ってインストールを行います。
 
 NDMF VRM ExporterはVCC / ALCOMから導入し、UniVRMは以下いずれかの方法でインストールします。
 
@@ -57,9 +57,9 @@ https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM10#v0.131.4
 
 ### セットアップ完了の確認
 
-上記のインストールを行ったのち、`セットアップ完了` と表示されることを確認します。もし表示が更新されていない場合は「依存パッケージの状態」の `パッケージを再確認` を選択します。
+上記のインストールを行うことで、セットアップウィンドウ上に `セットアップ完了` が表示されることを確認します。もし表示が更新されない場合は「依存パッケージの状態」の `パッケージを再確認` を選択します。
 
-セットアップ完了の表示が確認できたのち、 `エクスポート画面を開く` を選択するか、または **Tools > Material Override VRM > For VRChat: Export** でエクスポートウィンドウを開いて次に進みます。
+セットアップ完了の表示が確認できたら `エクスポート画面を開く` を選択するか、または **Tools > Material Override VRM > For VRChat: Export** でエクスポートウィンドウを開いて次に進みます。
 
 
 ## エクスポート
