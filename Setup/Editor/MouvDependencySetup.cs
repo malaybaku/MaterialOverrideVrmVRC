@@ -79,11 +79,13 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
     public sealed class MouvSetupWindow : EditorWindow
     {
         const string WindowTitle = "Setup: Material Override VRM for VRChat";
+        const string UsageUrl = "https://github.com/malaybaku/MaterialOverrideVrmVRC/blob/main/README_usage.md";
         enum Language { Japanese, English }
         [SerializeField] Language language;
         Vector2 scroll;
         string copiedPackage;
-        bool showUniVrmInstructions;
+        bool showUniVrmPackageInstructions;
+        bool showUniVrmGitInstructions;
         bool showNdmfInstructions;
         string Text(string japanese, string english) => language == Language.Japanese ? japanese : english;
 
@@ -105,8 +107,14 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
         {
             var windowPadding = new GUIStyle { padding = new RectOffset(15, 15, 6, 6) };
             var sectionPadding = new GUIStyle { padding = new RectOffset(15, 0, 0, 0) };
+            using var windowScroll = new EditorGUILayout.ScrollViewScope(scroll, GUIStyle.none, GUI.skin.verticalScrollbar);
+            scroll = windowScroll.scrollPosition;
             using (new EditorGUILayout.VerticalScope(windowPadding))
             {
+                var usageLink = new GUIContent(Text("使い方を見る(GitHub)", "View usage guide (GitHub)"), UsageUrl);
+                if (EditorGUILayout.LinkButton(usageLink, GUILayout.Width(EditorStyles.linkLabel.CalcSize(usageLink).x)))
+                    Application.OpenURL(UsageUrl);
+                GUILayout.Space(EditorGUIUtility.singleLineHeight * 0.3f);
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     GUILayout.Label("Language", GUILayout.Width(65));
@@ -133,14 +141,30 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
                     }
                 }
 
-                scroll = EditorGUILayout.BeginScrollView(scroll);
                 EditorGUILayout.Space();
                 var uniVrmReady = PackagesReady("com.vrmc.gltf", "com.vrmc.vrm");
                 DrawInstallHeader(Text("UniVRMをインストール", "Install UniVRM"), uniVrmReady);
                 using (new EditorGUILayout.VerticalScope(sectionPadding))
                 {
-                    if (ShowInstructions(uniVrmReady, ref showUniVrmInstructions))
-                        DrawUniVrmInstructions();
+                    if (uniVrmReady)
+                        EditorGUILayout.LabelField(Text("インストール済みです。", "Already installed."));
+
+                    showUniVrmPackageInstructions = EditorGUILayout.Foldout(showUniVrmPackageInstructions,
+                        Text("インストール手順 (unitypackage で導入)", "Installation instructions (unitypackage)"), true);
+                    if (showUniVrmPackageInstructions)
+                    {
+                        using (new EditorGUILayout.VerticalScope(sectionPadding))
+                            DrawUniVrmPackageInstructions();
+                    }
+
+                    GUILayout.Space(8);
+                    showUniVrmGitInstructions = EditorGUILayout.Foldout(showUniVrmGitInstructions,
+                        Text("インストール手順 (Git URL で導入)", "Installation instructions (Git URLs)"), true);
+                    if (showUniVrmGitInstructions)
+                    {
+                        using (new EditorGUILayout.VerticalScope(sectionPadding))
+                            DrawUniVrmGitInstructions();
+                    }
                 }
 
                 EditorGUILayout.Space();
@@ -149,7 +173,10 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
                 using (new EditorGUILayout.VerticalScope(sectionPadding))
                 {
                     if (ShowInstructions(ndmfReady, ref showNdmfInstructions))
-                        DrawNdmfInstructions();
+                    {
+                        using (new EditorGUILayout.VerticalScope(sectionPadding))
+                            DrawNdmfInstructions();
+                    }
                 }
 
                 EditorGUILayout.Space();
@@ -170,7 +197,6 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
                     var blockers = language == Language.Japanese ? MouvDependencySetup.Blockers : MouvDependencySetup.EnglishBlockers;
                     foreach (var blocker in blockers) EditorGUILayout.HelpBox(blocker, MessageType.Warning);
                 }
-                EditorGUILayout.EndScrollView();
             }
         }
 
@@ -200,7 +226,9 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
             return expanded;
         }
 
-        static void DrawInstructionBox(params string[] lines)
+        static void DrawInstructionBox(params string[] lines) => DrawInstructionBox(null, lines);
+
+        static void DrawInstructionBox(Action drawFirstLine, params string[] lines)
         {
             var boxStyle = new GUIStyle(EditorStyles.helpBox)
             {
@@ -210,25 +238,45 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
             var textStyle = new GUIStyle(EditorStyles.wordWrappedLabel);
             using (new EditorGUILayout.VerticalScope(boxStyle))
             {
+                drawFirstLine?.Invoke();
                 for (var i = 0; i < lines.Length; i++)
                 {
-                    if (i > 0) GUILayout.Space(Mathf.Max(0, textStyle.lineHeight * 0.35f - EditorGUIUtility.standardVerticalSpacing));
+                    if (i > 0 || drawFirstLine != null) GUILayout.Space(Mathf.Max(0, textStyle.lineHeight * 0.35f - EditorGUIUtility.standardVerticalSpacing));
                     // Let word wrapping determine the full height; height constraints can clip wrapped lines.
                     GUILayout.Label(lines[i], textStyle);
                 }
             }
         }
 
-        void DrawUniVrmInstructions()
+        void DrawUniVrmPackageInstructions()
+        {
+            DrawInstructionBox(DrawReleasePageStep,
+                Text("2. リリースページの「Assets」から VRM-0.131.4_efd2.unitypackage をダウンロードします。",
+                    "2. Download VRM-0.131.4_efd2.unitypackage from the Assets section of the release page."),
+                Text("3. ダウンロードしたファイルを Project ウィンドウにドラッグし、Importを実行します。",
+                    "3. Drag the downloaded file into the Project window and click Import."));
+        }
+
+        void DrawReleasePageStep()
+        {
+            const string releaseUrl = "https://github.com/vrm-c/UniVRM/releases/tag/v0.131.4";
+            var releaseLink = new GUIContent(Text("UniVRM v0.131.4 の公式リリース", "official UniVRM v0.131.4 release"), releaseUrl);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label(Text("1.", "1. Open the"), GUILayout.ExpandWidth(false));
+                if (EditorGUILayout.LinkButton(releaseLink, GUILayout.Width(EditorStyles.linkLabel.CalcSize(releaseLink).x)))
+                    Application.OpenURL(releaseUrl);
+                GUILayout.Label(Text("を開きます。", "."), GUILayout.ExpandWidth(false));
+                GUILayout.FlexibleSpace();
+            }
+        }
+
+        void DrawUniVrmGitInstructions()
         {
             DrawInstructionBox(
                 Text("1. Window > Package Manager を開きます。", "1. Open Window > Package Manager."),
-                Text("2. 下記のURLを一つコピーします。", "2. Copy one of the URLs below."),
-                Text("3. Package Managerで [+] > Add package from git URL... を選択します。",
-                    "3. In Package Manager, select [+] > Add package from git URL..."),
-                Text("4. コピーしたURLを指定します。", "4. Enter the copied URL."),
-                Text("5. もう一方のURLも同様にコピーし、[+] > Add package from git URL... からURLを指定します。",
-                    "5. Copy the other URL and add it through [+] > Add package from git URL... as well."));
+                Text("2. [+] > Add package from git URL... で、下記のURLを1つずつ追加します。",
+                    "2. Use [+] > Add package from git URL... to add the URLs below one at a time."));
             foreach (var required in MouvDependencySetup.Requirements.Where(r => r.GitUrl != null))
             {
                 using (new EditorGUILayout.HorizontalScope())

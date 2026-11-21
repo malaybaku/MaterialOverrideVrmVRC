@@ -31,16 +31,35 @@
 
 ## セットアップ
 
-Editor上で **Tools > Material Override VRM > For VRChat: Setup** を選択し、案内に従ってパッケージを導入します。
+### セットアップの基本手順
 
-パッケージのうち、とくにUniVRMはUPM (Unity Package Manager)での導入を想定しています。UniGLTF, およびVRM1.0パッケージにあたる下記2パッケージを **Window > Package Manager > + > Add package from git URL...** から追加します。
+Unity Editorで **Tools > Material Override VRM > For VRChat: Setup** を開き、必要なパッケージがインストールされているか確認します。
+
+とくに [UniVRM](https://github.com/vrm-c/UniVRM) と [NDMF VRM Exporter](https://github.com/hkrn/ndmf-vrm-exporter) がインストールされていない場合、それぞれウィンドウ上の案内に沿ってインストールを行います。
+
+NDMF VRM ExporterはVCC / ALCOMから導入し、UniVRMは以下いずれかの方法でインストールします。
+
+unitypackageを使って導入する場合:
+
+1. [UniVRM v0.131.4 の公式リリース](https://github.com/vrm-c/UniVRM/releases/tag/v0.131.4)を開きます。
+2. リリースページの **Assets** から、VRM 1.0用の `VRM-0.131.4_efd2.unitypackage` をダウンロードします。
+3. ダウンロードしたファイルを Project ウィンドウにドラッグし、Importを実行します。
+
+UPM (Unity Package Manager)にgit URLを指定して導入する場合:
+
+1. **Window > Package Manager** でパッケージマネージャーのウィンドウを開きます。
+2. **[+] > Add package from git URL...** で、下記のURLを1つずつ追加します。
 
 ```
 https://github.com/vrm-c/UniVRM.git?path=/Packages/UniGLTF#v0.131.4
 https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM10#v0.131.4
 ```
 
-また、[NDMF VRM Exporter](https://github.com/hkrn/ndmf-vrm-exporter) が未導入の場合は別途VCC / ALCOMから導入します。
+### セットアップ完了の確認
+
+上記のインストールを行ったのち、`セットアップ完了` と表示されることを確認します。もし表示が更新されていない場合は「依存パッケージの状態」の `パッケージを再確認` を選択します。
+
+セットアップ完了の表示が確認できたのち、 `エクスポート画面を開く` を選択するか、または **Tools > Material Override VRM > For VRChat: Export** でエクスポートウィンドウを開いて次に進みます。
 
 
 ## エクスポート
