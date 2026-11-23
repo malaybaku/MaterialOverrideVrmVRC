@@ -251,8 +251,8 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
         void DrawUniVrmPackageInstructions()
         {
             DrawInstructionBox(DrawReleasePageStep,
-                Text("2. リリースページの「Assets」から VRM-0.131.4_efd2.unitypackage をダウンロードします。",
-                    "2. Download VRM-0.131.4_efd2.unitypackage from the Assets section of the release page."),
+                Text("2. リリースページの「Installation > UnityPackage」にある「VRM 1.0: Download」から VRM-0.131.4_efd2.unitypackage をダウンロードします。",
+                    "2. On the release page, go to Installation > UnityPackage and use the VRM 1.0: Download link to download VRM-0.131.4_efd2.unitypackage."),
                 Text("3. ダウンロードしたファイルを Project ウィンドウにドラッグし、Importを実行します。",
                     "3. Drag the downloaded file into the Project window and click Import."));
         }
