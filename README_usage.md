@@ -156,3 +156,24 @@ VRMの出力とあわせて、アバターのマテリアルおよびテクス�
 ## エクスポート後の不要なコンポーネント削除について
 
 `まとめてエクスポート` によるエクスポートを一度実行するか、または `ステップごとにエクスポート` のStep1を実行すると、出力元アバターに `Capture Materials on VRM Export` コンポーネントがアタッチされ、NDMF VRM Exporterによる変換前にマテリアルのスナップショット情報を保存するようになります。この挙動を停止させるには、同コンポーネントの `Capture` をオフにするか、コンポーネントを削除してください。
+
+
+## トラブルシューティング
+
+### VMagicMirrorでアバターのメッシュが表示されない（lilToon）
+
+`.mouv` を読み込んだとき、アバターのメッシュが表示されず、影やポストプロセスによるリムライト等だけが見える場合があります。
+
+とくにliltoonを使用している場合、Unity Editor上で手動でRender PipelineをBuilt-in RPからURPへ切り替えたあとで `.mouv` をエクスポートすると本事象が起きることがあります。
+
+本ツールはエクスポート時にRender Pipelineを切り替える場合にはlilToonシェーダーを自動で再生成しますが、あらかじめRender PipelineがURPである場合この再生成が省略されます。
+
+この場合は、URPが有効な状態でUnityの **Assets > lilToon > [Shader] Refresh shaders** を実行したのち、 `.mouv` を再エクスポートします。`まとめてエクスポート` の手順を用いる場合はStep2のみを再実施します。
+
+
+### 別のOSで `.mouv` を正常に読み込めない
+
+`.mouv` に含まれるAssetBundleとシェーダーは、エクスポート時にUnity Editorで有効な `Target Platform` 向けにビルドされます。たとえば、macOSをターゲットにして出力した `.mouv` はWindows環境では正常に読み込めません。
+
+Macで作業してWindows向けにファイルをエクスポートする場合、Unityの **File > Build Settings** で `PC, Mac & Linux Standalone` の `Target Platform` を `Windows` に設定します。`Switch Platform` で切り替えが完了してから `.mouv` を再エクスポートしてください。
+
