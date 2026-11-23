@@ -49,6 +49,9 @@ unitypackageを使って導入する場合:
 2. リリースページの `Installation > UnityPackage` で `VRM 1.0: Download` の箇所から unitypackageファイル(`VRM-0.131.4_efd2.unitypackage`)をダウンロードします。
 3. ダウンロードしたファイルを Project ウィンドウにドラッグし、Importを実行します。
 
+※3の実行後にコンパイルエラーが起こってしまう場合、トラブルシュートの `UniVRMの更新時にコンパイルエラーが発生した` を参照してください。
+
+
 UPM (Unity Package Manager)にgit URLを指定して導入する場合:
 
 1. `Window > Package Manager` でパッケージマネージャーのウィンドウを開きます。
@@ -165,9 +168,21 @@ VRMの出力とあわせて、アバターのマテリアルおよびテクス�
 
 ## トラブルシューティング
 
+### UniVRMの更新時にコンパイルエラーが発生した
+
+プロジェクトにインストール済みだがバージョンが古いUniVRMが存在し、それを `.unitypackage` で更新した場合、コンパイルエラーが発生することがあります。
+
+この場合、下記の手順でUniVRMを再インストールしてください。
+
+- いったんUnityのプロジェクトを閉じます。
+- プロジェクトフォルダの `Packages` フォルダを開きます。
+-  `com.vrmc.gltf` フォルダと `com.vrmc.vrm` フォルダを削除します。
+- Unityのプロジェクトを再び開き、ダウンロードしてあるunitypackageを再度ProjectウィンドウにドラッグしてImportします。
+
+
 ### VMagicMirrorでアバターのメッシュが表示されない（lilToon）
 
-`.mouv` を読み込んだとき、アバターのメッシュが表示されず、影やポストプロセスによるリムライト等だけが見える場合があります。
+`.mouv` をアプリケーションで読み込んだとき、アバターのメッシュが表示されず、影やポストプロセスによるリムライト等だけが見える場合があります。
 
 とくにliltoonを使用している場合、Unity Editor上で手動でRender PipelineをBuilt-in RPからURPへ切り替えたあとで `.mouv` をエクスポートすると本事象が起きることがあります。
 
