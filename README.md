@@ -1,6 +1,6 @@
 # Material Override VRM for VRChat
 
-VRChat向けにセットアップしたアバターから、[VMagicMirror](https://malaybaku.github.io/VMagicMirror/)で使えるアバター形式である `.mouv`（Material Override VRM）を出力するUnity Editor用パッケージです。
+VRChat向けにセットアップしたアバターから、[VMagicMirror](https://malaybaku.github.io/VMagicMirror/)で使えるアバター形式である `.mouv`（Material Override Unity VRM）を出力するUnity Editor用パッケージです。
 
 本パッケージを通じて、MToonに変換する前のマテリアルをモデルに適用してVMagicMirrorで表示できます。
 
@@ -8,9 +8,9 @@ Unity 2022.3のVRChatアバタープロジェクト向けパッケージです�
 
 ## 導入と使い方
 
-1. [baxter's VPM Packages](https://malaybaku.github.io/baku-vpm/)をVCC / ALCOMへ追加し、本パッケージをインストールします。
-2. Unityの **Tools > Material Override VRM > For VRChat: Setup** を開き、依存パッケージのセットアップを行います。
-3. **For VRChat: Export Avatar** を開き、エクスポート操作を行います。
+1. [baxter's VPM Packages](https://malaybaku.github.io/baku-vpm/)をVCC / ALCOMへ追加し、本パッケージ (`Material Override VRM for VRChat`) をインストールします。
+2. Unityの `Tools > Material Override VRM > For VRChat: Setup` を開き、依存パッケージのセットアップを行います。
+3. `For VRChat: Export Avatar` を開き、エクスポート操作を行います。
 
 詳しくは [README_usage](README_usage.md) ページを参照してください。
 

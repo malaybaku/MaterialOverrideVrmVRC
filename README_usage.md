@@ -31,40 +31,42 @@
 
 ## セットアップ
 
-### セットアップの基本手順
+### セットアップウィンドウを開く
 
-Unity Editorで **Tools > Material Override VRM > For VRChat: Setup** からセットアップウィンドウを開き、必要なパッケージがインストールされているか確認します。
+Unity Editorで `Tools > Material Override VRM > For VRChat: Setup` を選択してセットアップウィンドウを開きます。
+
+このセットアップウィンドウで必要なパッケージがインストールされているか確認します。
+
+### 必要に応じてパッケージをインストールする
 
 とくに [UniVRM](https://github.com/vrm-c/UniVRM) と [NDMF VRM Exporter](https://github.com/hkrn/ndmf-vrm-exporter) がインストールされていない場合、それぞれ案内に沿ってインストールを行います。
 
-NDMF VRM ExporterはVCC / ALCOMから導入し、UniVRMは以下いずれかの方法でインストールします。
+NDMF VRM ExporterはVCC / ALCOMから導入します。UniVRMは以下いずれかの方法でインストールします。
 
 unitypackageを使って導入する場合:
 
 1. [UniVRM v0.131.4 の公式リリース](https://github.com/vrm-c/UniVRM/releases/tag/v0.131.4)を開きます。
-2. リリースページの **Assets** から、VRM 1.0用の `VRM-0.131.4_efd2.unitypackage` をダウンロードします。
+2. リリースページの `Installation > UnityPackage` で `VRM 1.0: Download` の箇所から unitypackageファイル(`VRM-0.131.4_efd2.unitypackage`)をダウンロードします。
 3. ダウンロードしたファイルを Project ウィンドウにドラッグし、Importを実行します。
 
 UPM (Unity Package Manager)にgit URLを指定して導入する場合:
 
-1. **Window > Package Manager** でパッケージマネージャーのウィンドウを開きます。
-2. **[+] > Add package from git URL...** で、下記のURLを1つずつ追加します。
+1. `Window > Package Manager` でパッケージマネージャーのウィンドウを開きます。
+2. `[+] > Add package from git URL...` で、下記のURLを1つずつ追加します。
 
 ```
 https://github.com/vrm-c/UniVRM.git?path=/Packages/UniGLTF#v0.131.4
 https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM10#v0.131.4
 ```
 
-### セットアップ完了の確認
+### セットアップの完了確認
 
-上記のインストールを行うことで、セットアップウィンドウ上に `セットアップ完了` が表示されることを確認します。もし表示が更新されない場合は「依存パッケージの状態」の `パッケージを再確認` を選択します。
+上記のインストールを行ったのち、セットアップウィンドウ上に `セットアップ完了` が表示されることを確認します。もし表示が更新されない場合は「依存パッケージの状態」の `パッケージを再確認` を選択します。
 
-セットアップ完了の表示が確認できたら `エクスポート画面を開く` を選択するか、または **Tools > Material Override VRM > For VRChat: Export** でエクスポートウィンドウを開いて次に進みます。
+セットアップ完了の表示が確認できたら `エクスポート画面を開く` を選択するか、または `Tools > Material Override VRM > For VRChat: Export` でエクスポートウィンドウを開いて次に進みます。
 
 
 ## エクスポート
-
-Editor上で **Tools > Material Override VRM > For VRChat: Export** を開いてエクスポートを行います。
 
 ### 対象アバターのセットアップ
 
@@ -72,7 +74,13 @@ Editor上で **Tools > Material Override VRM > For VRChat: Export** を開いて
 
 VRM Export Descriptionの `MToon Options` は基本的にVRM (`.vrm`) の出力にのみ影響し、 `.mouv` での見た目には影響しません。ただし `.mouv` についても、VRM側のMToonをそのまま使うようセットアップされたマテリアルでは影響を受けます。
 
-セットアップ後、下記いずれかの方法でエクスポートを行います。
+### セットアップウィンドウを開く
+
+`Tools > Material Override VRM > For VRChat: Export Avatar` を選択してエクスポートウィンドウを開きます。
+
+※もし上記のメニューバー項目が存在しない場合はセットアップに不足があります。「セットアップ」の説明を再確認してください。
+
+エクスポートウィンドウでは、下記いずれかの方法でエクスポートを行います。
 
 - まとめてエクスポート: 推奨手順
 - ステップごとにエクスポート: 推奨手順でうまくエクスポートできない場合の方法
@@ -86,9 +94,6 @@ VRM Export Descriptionの `MToon Options` は基本的にVRM (`.vrm`) の出力�
 
 詳細設定では下記のオプションが利用可能です。いずれもデフォルトでは変更不要です。
 
-- `VRMをプロジェクトにも残す`: エクスポート中にプロジェクトの `Assets` 配下にインポートしたVRMを削除せずに残します。
-  - VRMが意図通りに出力されているかをEditor上でチェックしたい場合はオンにします。
-  - オンにした場合、保存先をあわせて指定します。
 - `エクスポートしたマテリアル情報をプロジェクトにも残す`: `.mouv` ファイルに含めたマテリアル情報をプロジェクトの `Assets` 配下に `Assets/MaterialOverrideVrm/Generated/<アバター名>` というフォルダパスでも残します。
   - 出力した `.mouv` ファイルの表示に問題がある場合の調査時などにオンにします。
   - このオプションが必要な場合、エクスポート前にマテリアルを調整したい可能性があります。次のセクションも参照してください。
@@ -168,12 +173,12 @@ VRMの出力とあわせて、アバターのマテリアルおよびテクス�
 
 本ツールはエクスポート時にRender Pipelineを切り替える場合にはlilToonシェーダーを自動で再生成しますが、あらかじめRender PipelineがURPである場合この再生成が省略されます。
 
-この場合は、URPが有効な状態でUnityの **Assets > lilToon > [Shader] Refresh shaders** を実行したのち、 `.mouv` を再エクスポートします。`まとめてエクスポート` の手順を用いる場合はStep2のみを再実施します。
+この場合は、URPが有効な状態でUnityの `Assets > lilToon > [Shader] Refresh shaders` を実行したのち、 `.mouv` を再エクスポートします。`まとめてエクスポート` の手順を用いる場合はStep2のみを再実施します。
 
 
 ### 別のOSで `.mouv` を正常に読み込めない
 
 `.mouv` に含まれるAssetBundleとシェーダーは、エクスポート時にUnity Editorで有効な `Target Platform` 向けにビルドされます。たとえば、macOSをターゲットにして出力した `.mouv` はWindows環境では正常に読み込めません。
 
-Macで作業してWindows向けにファイルをエクスポートする場合、Unityの **File > Build Settings** で `PC, Mac & Linux Standalone` の `Target Platform` を `Windows` に設定します。`Switch Platform` で切り替えが完了してから `.mouv` を再エクスポートしてください。
+Macで作業してWindows向けにファイルをエクスポートする場合、Unityの `File > Build Settings` で `PC, Mac & Linux Standalone` の `Target Platform` を `Windows` に設定します。`Switch Platform` で切り替えが完了してから `.mouv` を再エクスポートしてください。
 
