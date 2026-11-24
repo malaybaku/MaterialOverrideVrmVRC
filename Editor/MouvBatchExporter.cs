@@ -77,7 +77,7 @@ namespace Baku.MaterialOverrideVrmVRC
                 AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
                 clone = Object.Instantiate(sourceAvatar);
                 clone.name = sourceAvatar.name;
-                clone.GetComponent<CaptureMouvMaterials>().PreserveExtraMaterialSlots = preserveExtraMaterialSlots;
+                clone.GetComponent<PrepareMaterialsForMouvExport>().PreserveExtraMaterialSlots = preserveExtraMaterialSlots;
                 // NDMF records the clone's scene in its error report; keep normal scene membership.
                 BuildContext context;
                 using (MouvCapturePlugin.AssociateSource(clone, sourceAvatar, temporaryFolder))

@@ -343,7 +343,7 @@ namespace Baku.MaterialOverrideVrmVRC
                             RefreshExporterAvatar();
                         }
                     }
-                    var component = avatar ? avatar.GetComponent<CaptureMouvMaterials>() : null;
+                    var component = avatar ? avatar.GetComponent<PrepareMaterialsForMouvExport>() : null;
                     using (new EditorGUI.DisabledScope(!captureReady))
                     {
                         var preserve = DrawExtraMaterialSlotsToggle(!component || component.PreserveExtraMaterialSlots);

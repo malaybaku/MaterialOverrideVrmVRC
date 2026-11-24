@@ -40,15 +40,15 @@ namespace Baku.MaterialOverrideVrmVRC
 
         internal static bool IsCaptureEnabled(GameObject avatar)
         {
-            var component = avatar ? avatar.GetComponent<CaptureMouvMaterials>() : null;
+            var component = avatar ? avatar.GetComponent<PrepareMaterialsForMouvExport>() : null;
             return component && component.enabled && component.Capture;
         }
 
         internal static void EnableCapture(GameObject avatar)
         {
             if (IsCaptureEnabled(avatar)) return;
-            var component = avatar.GetComponent<CaptureMouvMaterials>();
-            if (!component) component = Undo.AddComponent<CaptureMouvMaterials>(avatar);
+            var component = avatar.GetComponent<PrepareMaterialsForMouvExport>();
+            if (!component) component = Undo.AddComponent<PrepareMaterialsForMouvExport>(avatar);
             Undo.RecordObject(component, "Enable material capture");
             component.enabled = true;
             component.Capture = true;
@@ -65,7 +65,7 @@ namespace Baku.MaterialOverrideVrmVRC
                     var root = ctx.AvatarRootObject;
                     var state = ctx.GetState<SourceState>();
                     state.CaptureEnabled = IsCaptureEnabled(root);
-                    var component = root.GetComponent<CaptureMouvMaterials>();
+                    var component = root.GetComponent<PrepareMaterialsForMouvExport>();
                     state.PreserveExtraMaterialSlots = component && component.PreserveExtraMaterialSlots;
                     if (component) UnityEngine.Object.DestroyImmediate(component);
                     if (!state.CaptureEnabled) return;
