@@ -129,7 +129,7 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
                     var setupStatusStyle = new GUIStyle(EditorStyles.boldLabel);
                     setupStatusStyle.normal.textColor = StatusColor(MouvDependencySetup.IsReady);
                     EditorGUILayout.LabelField(MouvDependencySetup.IsReady
-                        ? Text("セットアップ完了", "Setup complete")
+                        ? Text("セットアップ完了: エクスポート画面を開いてください。", "Setup complete. Open the exporter to continue.")
                         : Text("セットアップが必要です。", "Action Required: Setup incomplete"),
                         setupStatusStyle);
                     var buttonRect = EditorGUILayout.GetControlRect(false, 48);

@@ -25,32 +25,8 @@ namespace Baku.MaterialOverrideVrmVRC
         }
         public static bool IsRunning { get; private set; }
 
-        public static string ResolveVrmPath(string requestedPath, string avatarName)
-        {
-            var path = (requestedPath ?? "").Trim().Replace('\\', '/');
-            var safeName = new string((avatarName ?? "Avatar").Where(c => !Path.GetInvalidFileNameChars().Contains(c) && c != '/' && c != '\\').Take(48).ToArray()).Trim(' ', '.');
-            if (string.IsNullOrEmpty(safeName)) safeName = "Avatar";
-            if (string.IsNullOrEmpty(path)) path = "Assets/MaterialOverrideVrm/" + safeName + ".vrm";
-            else if (path.EndsWith("/") || Directory.Exists(path) || !Path.HasExtension(path)) path = path.TrimEnd('/') + "/" + safeName + ".vrm";
-            var full = Path.GetFullPath(path);
-            var assets = Path.GetFullPath(Application.dataPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
-            if (!full.StartsWith(assets, StringComparison.OrdinalIgnoreCase) ||
-                !string.Equals(Path.GetExtension(full), ".vrm", StringComparison.OrdinalIgnoreCase))
-                throw new MouvBatchExportException("VRM保存先にはAssets以下のフォルダ、または.vrmファイルのパスを指定してください。",
-                    "Specify a folder or a .vrm file path under Assets.");
-            path = "Assets/" + full.Substring(assets.Length).Replace('\\', '/');
-            // GenerateUniqueAssetPath can return empty when the destination folder is not imported yet.
-            var unique = path;
-            var parent = Path.GetDirectoryName(path).Replace('\\', '/');
-            var stem = Path.GetFileNameWithoutExtension(path);
-            for (var index = 1; File.Exists(unique) || Directory.Exists(unique) || File.Exists(unique + ".meta"); index++)
-                unique = parent + "/" + stem + " " + index + ".vrm";
-            return unique;
-        }
-
-        public static async Task<Result> ExportAsync(GameObject sourceAvatar, string requestedVrmPath,
-            string mouvPath, RenderPipelineAsset pipeline, bool keepPipeline, bool temporarySnapshot = false, bool keepProjectVrm = false,
-            bool japanese = true)
+        public static async Task<Result> ExportAsync(GameObject sourceAvatar, string mouvPath, RenderPipelineAsset pipeline,
+            bool keepPipeline, bool temporarySnapshot = false, bool japanese = true)
         {
             if (IsRunning || EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode)
                 throw new MouvBatchExportException("Unityの処理が完了してから再実行してください。", "Wait for Unity to finish its current operation.");
@@ -64,7 +40,11 @@ namespace Baku.MaterialOverrideVrmVRC
                 throw new MouvBatchExportException("一括出力用APIに対応していません: " + reason, "Batch export API unavailable: " + reason);
             bridge.ValidateAvatar(sourceAvatar);
             var importFolder = "Assets/MaterialOverrideVrm/Generated/VrmWork/" + Guid.NewGuid().ToString("N");
-            var vrmPath = ResolveVrmPath(keepProjectVrm ? requestedVrmPath : importFolder + "/", sourceAvatar.name);
+            var safeName = new string((sourceAvatar.name ?? "Avatar")
+                .Where(c => !Path.GetInvalidFileNameChars().Contains(c) && c != '/' && c != '\\')
+                .Take(48).ToArray()).Trim(' ', '.');
+            if (string.IsNullOrEmpty(safeName)) safeName = "Avatar";
+            var vrmPath = importFolder + "/" + safeName + ".vrm";
             var exportedVrmPath = Path.ChangeExtension(Path.GetFullPath(mouvPath), ".vrm");
             if (string.Equals(exportedVrmPath, Path.GetFullPath(mouvPath), StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("The output file must have a .mouv extension.", nameof(mouvPath));
@@ -100,7 +80,8 @@ namespace Baku.MaterialOverrideVrmVRC
                 using (new OverrideTemporaryDirectoryScope(null))
                     context = AvatarProcessor.ProcessAvatar(clone, bridge.Platform);
                 if (!context.Successful)
-                    throw new MouvBatchExportException("NDMFビルドにエラーがあります。NDMF Consoleを確認してください。", "NDMF reported build errors. Check the NDMF Console.");
+                    throw new MouvBatchExportException("NDMFビルドで警告またはエラーが出ています。NDMF Consoleを確認してください。",
+                        "NDMF reported warnings or errors during the build. Check the NDMF Console.");
                 var snapshotPath = MouvCapturePlugin.GetSnapshotPath(context);
                 var snapshot = string.IsNullOrEmpty(snapshotPath) ? null : AssetDatabase.LoadAssetAtPath<MaterialSnapshot>(snapshotPath);
                 if (!snapshot)
@@ -154,7 +135,7 @@ namespace Baku.MaterialOverrideVrmVRC
                     {
                         try
                         {
-                            if (completed && !keepProjectVrm && AssetDatabase.IsValidFolder(importFolder) && !AssetDatabase.DeleteAsset(importFolder))
+                            if (completed && AssetDatabase.IsValidFolder(importFolder) && !AssetDatabase.DeleteAsset(importFolder))
                                 throw new IOException("Could not remove imported VRM: " + importFolder);
                         }
                         finally
