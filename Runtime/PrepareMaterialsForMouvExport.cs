@@ -4,7 +4,6 @@ using nadena.dev.ndmf;
 namespace Baku.MaterialOverrideVrmVRC
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Material Override VRM/Prepare Materials for MOUV Export")]
     public sealed class PrepareMaterialsForMouvExport : MonoBehaviour, INDMFEditorOnly
     {
         [Tooltip("VRM出力直前のマテリアルとテクスチャを保存します。")]
