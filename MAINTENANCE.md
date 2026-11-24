@@ -49,7 +49,7 @@ Snapshotの自動選択は、VRMメタデータのアバター名と一致する
 
 ## マテリアルCapture
 
-`CaptureMouvMaterials` が有効かつ `Capture` がtrueのアバターだけが対象です。まとめてエクスポートは元アバターへ自動追加・有効化し、ステップごとの出力ではボタン操作で設定します。元アバターには出力後も残します。ビルドクローン側のマーカーは除去します。
+`PrepareMaterialsForMouvExport` が有効かつ `Capture` がtrueのアバターだけが対象です。まとめてエクスポートは元アバターへ自動追加・有効化し、ステップごとの出力ではボタン操作で設定します。元アバターには出力後も残します。ビルドクローン側のマーカーは除去します。
 
 NDMFのOptimizingフェーズで、Modular Avatar / TexTransTool / Avatar Optimizerの後、VRM Exporterの前に取得します。他の生成ツールを扱う場合は処理順を確認してください。VRChatアップロード用ビルドでは保存しません。
 

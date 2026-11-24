@@ -16,6 +16,7 @@ namespace Baku.MaterialOverrideVrmVRC
         sealed class SourceState
         {
             public bool CaptureEnabled;
+            public bool PreserveExtraMaterialSlots;
             public GameObject Avatar;
             public MaterialSnapshot Snapshot;
             public string SnapshotPath;
@@ -39,15 +40,15 @@ namespace Baku.MaterialOverrideVrmVRC
 
         internal static bool IsCaptureEnabled(GameObject avatar)
         {
-            var component = avatar ? avatar.GetComponent<CaptureMouvMaterials>() : null;
+            var component = avatar ? avatar.GetComponent<PrepareMaterialsForMouvExport>() : null;
             return component && component.enabled && component.Capture;
         }
 
         internal static void EnableCapture(GameObject avatar)
         {
             if (IsCaptureEnabled(avatar)) return;
-            var component = avatar.GetComponent<CaptureMouvMaterials>();
-            if (!component) component = Undo.AddComponent<CaptureMouvMaterials>(avatar);
+            var component = avatar.GetComponent<PrepareMaterialsForMouvExport>();
+            if (!component) component = Undo.AddComponent<PrepareMaterialsForMouvExport>(avatar);
             Undo.RecordObject(component, "Enable material capture");
             component.enabled = true;
             component.Capture = true;
@@ -62,10 +63,12 @@ namespace Baku.MaterialOverrideVrmVRC
             InPhase(BuildPhase.FirstChance).OnPlatforms(new[] { "com.github.hkrn.ndmf-vrm-exporter" }, seq =>
                 seq.Run("Identify material capture source", ctx => {
                     var root = ctx.AvatarRootObject;
-                    ctx.GetState<SourceState>().CaptureEnabled = IsCaptureEnabled(root);
-                    var component = root.GetComponent<CaptureMouvMaterials>();
+                    var state = ctx.GetState<SourceState>();
+                    state.CaptureEnabled = IsCaptureEnabled(root);
+                    var component = root.GetComponent<PrepareMaterialsForMouvExport>();
+                    state.PreserveExtraMaterialSlots = component && component.PreserveExtraMaterialSlots;
                     if (component) UnityEngine.Object.DestroyImmediate(component);
-                    if (!ctx.GetState<SourceState>().CaptureEnabled) return;
+                    if (!state.CaptureEnabled) return;
                     if (Sources.TryGetValue(root, out var source))
                     {
                         ctx.GetState<SourceState>().Avatar = source.Avatar;
@@ -88,9 +91,41 @@ namespace Baku.MaterialOverrideVrmVRC
                    .Run("Save materials before VRM export", ctx => {
                        var state = ctx.GetState<SourceState>();
                        if (!state.CaptureEnabled) return;
+                       if (state.PreserveExtraMaterialSlots) ExpandExtraMaterialSlots(ctx);
                        state.Snapshot = MouvMaterialCapture.Capture(ctx.AvatarRootObject, state.Avatar, state.TemporaryFolder);
                        state.SnapshotPath = AssetDatabase.GetAssetPath(state.Snapshot);
                    }));
+        }
+
+        static void ExpandExtraMaterialSlots(BuildContext context)
+        {
+            foreach (var renderer in context.AvatarRootObject.GetComponentsInChildren<Renderer>(true))
+            {
+                var skinned = renderer as SkinnedMeshRenderer;
+                MeshFilter filter = null;
+                if (!skinned && (!(renderer is MeshRenderer) || !renderer.TryGetComponent(out filter))) continue;
+
+                var mesh = skinned ? skinned.sharedMesh : filter.sharedMesh;
+                if (!mesh || mesh.subMeshCount == 0) continue;
+                var slotCount = renderer.sharedMaterials.Length;
+                if (slotCount <= mesh.subMeshCount) continue;
+
+                // Unity draws extra materials over the last submesh. The VRM exporter emits one
+                // primitive per submesh, so make those draw calls explicit on the build clone.
+                var lastSubmesh = mesh.subMeshCount - 1;
+                var indices = mesh.GetIndices(lastSubmesh, applyBaseVertex: false);
+                var topology = mesh.GetTopology(lastSubmesh);
+                var baseVertex = (int)mesh.GetBaseVertex(lastSubmesh);
+                var copy = UnityEngine.Object.Instantiate(mesh);
+                copy.name = mesh.name;
+                context.AssetSaver.SaveAsset(copy);
+                copy.subMeshCount = slotCount;
+                for (var slot = lastSubmesh + 1; slot < slotCount; slot++)
+                    copy.SetIndices(indices, topology, slot, calculateBounds: false, baseVertex: baseVertex);
+
+                if (skinned) skinned.sharedMesh = copy;
+                else filter.sharedMesh = copy;
+            }
         }
     }
 }
