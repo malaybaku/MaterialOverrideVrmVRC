@@ -80,7 +80,8 @@ namespace Baku.MaterialOverrideVrmVRC
                 using (new OverrideTemporaryDirectoryScope(null))
                     context = AvatarProcessor.ProcessAvatar(clone, bridge.Platform);
                 if (!context.Successful)
-                    throw new MouvBatchExportException("NDMFビルドにエラーがあります。NDMF Consoleを確認してください。", "NDMF reported build errors. Check the NDMF Console.");
+                    throw new MouvBatchExportException("NDMFビルドで警告またはエラーが出ています。NDMF Consoleを確認してください。",
+                        "NDMF reported warnings or errors during the build. Check the NDMF Console.");
                 var snapshotPath = MouvCapturePlugin.GetSnapshotPath(context);
                 var snapshot = string.IsNullOrEmpty(snapshotPath) ? null : AssetDatabase.LoadAssetAtPath<MaterialSnapshot>(snapshotPath);
                 if (!snapshot)
