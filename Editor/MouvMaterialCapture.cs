@@ -5,6 +5,7 @@ using System.Linq;
 using Baku.MaterialOverridableVrm;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using Object = UnityEngine.Object;
 
 namespace Baku.MaterialOverrideVrmVRC
@@ -165,9 +166,137 @@ namespace Baku.MaterialOverrideVrmVRC
                 }
                 finally { RenderTexture.active = previous; GL.sRGBWrite = previousSrgbWrite; RenderTexture.ReleaseTemporary(temporary); }
             }
+            if (texture is Texture2D source && !source.isReadable)
+                return CopyNonReadableTexture(source);
             if (!(texture is Texture2D) && !(texture is Cubemap) && !(texture is Texture2DArray) && !(texture is Texture3D) && !(texture is CubemapArray))
                 throw new NotSupportedException("Unsupported texture: " + texture.GetType().Name);
             return Object.Instantiate(texture);
+        }
+
+        static Texture2D CopyNonReadableTexture(Texture2D source)
+        {
+            Texture2D result = null;
+            Texture2D serializedCopy = null;
+            try
+            {
+                // Imported textures have a serialized representation, including Crunch data and authored mips.
+                // Copy the actual build object without reopening the source image or changing its importer.
+                bool unmodifiedAsset = AssetDatabase.IsMainAsset(source) && !EditorUtility.IsDirty(source) && source.updateCount == 0;
+                if (unmodifiedAsset || GraphicsFormatUtility.IsCompressedFormat(source.graphicsFormat))
+                {
+                    serializedCopy = new Texture2D(2, 2);
+                    try { EditorUtility.CopySerialized(source, serializedCopy); }
+                    catch (UnityException)
+                    {
+                        Object.DestroyImmediate(serializedCopy);
+                        serializedCopy = null;
+                    }
+                    if (serializedCopy && unmodifiedAsset)
+                    {
+                        result = serializedCopy;
+                        serializedCopy = null;
+                        return result;
+                    }
+                }
+
+                if (source.activeMipmapLimit > 0 || (source.streamingMipmaps && source.loadedMipmapLevel > 0))
+                    throw new InvalidOperationException("The full-resolution mip is unavailable for GPU readback.");
+                var format = GetReadbackFormat(source);
+                result = new Texture2D(source.width, source.height, format, source.mipmapCount, TextureCreationFlags.None);
+                ReadTextureMips(source, result);
+                // Build tools can modify just the GPU image. Keep the compressed representation
+                // only when it renders identically to the actual build input at every mip.
+                if (serializedCopy && ReadTextureMips(serializedCopy, result, compareOnly: true))
+                {
+                    Object.DestroyImmediate(result);
+                    result = serializedCopy;
+                    serializedCopy = null;
+                    return result;
+                }
+                result.wrapModeU = source.wrapModeU;
+                result.wrapModeV = source.wrapModeV;
+                result.wrapModeW = source.wrapModeW;
+                result.filterMode = source.filterMode;
+                result.anisoLevel = source.anisoLevel;
+                result.mipMapBias = source.mipMapBias;
+                return result;
+            }
+            catch (Exception error)
+            {
+                if (result) Object.DestroyImmediate(result);
+                throw new InvalidOperationException($"Could not capture texture '{source.name}' ({source.format}, {source.graphicsFormat}).", error);
+            }
+            finally { if (serializedCopy) Object.DestroyImmediate(serializedCopy); }
+        }
+
+        static GraphicsFormat GetReadbackFormat(Texture2D source)
+        {
+            var format = source.graphicsFormat;
+            if (!SystemInfo.IsFormatSupported(format, FormatUsage.Sample) ||
+                GraphicsFormatUtility.IsIntegerFormat(format) || GraphicsFormatUtility.IsDepthStencilFormat(format))
+                throw new NotSupportedException("Source format cannot be sampled by the capture shader.");
+            if (CanReadRenderTarget(format)) return format;
+
+            // Preserve signed values, HDR and precision above eight bits when expanding to RGBA.
+            var fallback = GraphicsFormat.R32G32B32A32_SFloat;
+            if (source.isDataSRGB) fallback = GraphicsFormat.R8G8B8A8_SRGB;
+            else if (GraphicsFormatUtility.IsCompressedFormat(format) && !GraphicsFormatUtility.IsSNormFormat(format) &&
+                !GraphicsFormatUtility.IsHDRFormat(format)) fallback = GraphicsFormat.R8G8B8A8_UNorm;
+            if (!CanReadRenderTarget(fallback)) throw new NotSupportedException($"Cannot read back {fallback}.");
+            return fallback;
+        }
+
+        static bool CanReadRenderTarget(GraphicsFormat format) =>
+            SystemInfo.IsFormatSupported(format, FormatUsage.Render) && SystemInfo.IsFormatSupported(format, FormatUsage.ReadPixels);
+
+        static bool ReadTextureMips(Texture2D source, Texture2D result, bool compareOnly = false)
+        {
+            var shader = Shader.Find("Hidden/Baku/MaterialOverrideVrmVRC/CopyTextureMip");
+            if (!shader || !shader.isSupported) throw new NotSupportedException("Texture capture shader unavailable.");
+            var material = new Material(shader);
+            var previous = RenderTexture.active;
+            var previousSrgbWrite = GL.sRGBWrite;
+            try
+            {
+                for (int mip = 0; mip < result.mipmapCount; mip++)
+                {
+                    int width = Math.Max(1, source.width >> mip);
+                    int height = Math.Max(1, source.height >> mip);
+                    var descriptor = new RenderTextureDescriptor(width, height, result.graphicsFormat, 0);
+                    var target = RenderTexture.GetTemporary(descriptor);
+                    Texture2D pixels = null;
+                    try
+                    {
+                        pixels = new Texture2D(width, height, result.graphicsFormat, TextureCreationFlags.None);
+                        material.SetFloat("_Mip", mip);
+                        GL.sRGBWrite = source.isDataSRGB && QualitySettings.activeColorSpace == ColorSpace.Linear;
+                        Graphics.Blit(source, target, material);
+                        if (!target.IsCreated() || target.graphicsFormat != result.graphicsFormat)
+                            throw new InvalidOperationException($"Could not create {result.graphicsFormat} render target for mip {mip}.");
+                        RenderTexture.active = target;
+                        pixels.ReadPixels(new Rect(0, 0, width, height), 0, 0, false);
+                        var data = pixels.GetRawTextureData<byte>();
+                        if (compareOnly)
+                        {
+                            if (!data.ToArray().AsSpan().SequenceEqual(result.GetPixelData<byte>(mip).ToArray())) return false;
+                        }
+                        else result.SetPixelData(data, mip);
+                    }
+                    finally
+                    {
+                        RenderTexture.active = previous;
+                        RenderTexture.ReleaseTemporary(target);
+                        if (pixels) Object.DestroyImmediate(pixels);
+                    }
+                }
+                if (!compareOnly) result.Apply(false, false);
+                return true;
+            }
+            finally
+            {
+                GL.sRGBWrite = previousSrgbWrite;
+                Object.DestroyImmediate(material);
+            }
         }
 
         public static void Apply(MaterialSnapshot snapshot, MaterialOverrideSource source)
