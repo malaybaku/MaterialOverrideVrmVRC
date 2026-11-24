@@ -67,6 +67,14 @@ namespace Baku.MaterialOverrideVrmVRC
             exception is LocalizedExportException localized ? localized.EnglishMessage :
             exception is MouvBatchExportException batch ? batch.EnglishMessage : exception.Message, MessageType.Warning);
 
+        void ShowExportSuccessDialog(string fileExtensions)
+        {
+            EditorUtility.DisplayDialog(
+                Text("アバターのエクスポートに成功しました", "Avatar exported successfully"),
+                Text($"アバターファイル ({fileExtensions}) をエクスポートしました。", $"Export complete ({fileExtensions})."),
+                "OK");
+        }
+
         [MenuItem("Tools/Material Override VRM/For VRChat: Export Avatar", false, 991)]
         public static void Open() => GetWindow<MouvExportWindow>(WindowTitle);
 
@@ -401,8 +409,18 @@ namespace Baku.MaterialOverrideVrmVRC
                 }
                 using (new EditorGUI.DisabledScope(!IsSceneAvatar(avatar) || !hasDescription))
                     if (GUILayout.Button(Text("エクスポート", "Export"))) ExportBatch();
-                GUILayout.Label(Text("* VRMは、.mouvの保存先の拡張子を .vrm に変更したファイルとして保存します。",
-                    "* The VRM is saved to the .mouv output path with its extension changed to .vrm."), EditorStyles.wordWrappedLabel);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    GUILayout.Space(15);
+                    GUILayout.Label(Text(
+                        "エクスポートを行うと、2つのファイルを保存します。\n" +
+                        "・.mouv : 最終的な出力ファイルです。\n" +
+                        "・.vrm : .mouv を作るときに中間生成物として作成するVRMファイルです。",
+                        "Exporting saves two files.\n" +
+                        "• .mouv: The final output file.\n" +
+                        "• .vrm: An intermediate VRM file used to create the .mouv file."),
+                        EditorStyles.wordWrappedLabel);
+                }
             }
             DrawMessage();
         }
@@ -433,7 +451,7 @@ namespace Baku.MaterialOverrideVrmVRC
                     japanese: language == Language.Japanese);
                 SetMessage("エクスポート完了\nVRM: " + DisplayOutputPath(result.VrmPath) + "\n.mouv: " + DisplayOutputPath(output),
                     "Export complete\nVRM: " + DisplayOutputPath(result.VrmPath) + "\n.mouv: " + DisplayOutputPath(output));
-                EditorUtility.DisplayDialog("Material Override VRM for VRChat", "Avatar file (.mouv) exported successfully.", "OK");
+                ShowExportSuccessDialog(".mouv, .vrm");
             }
             catch (OperationCanceledException) { SetMessage("エクスポートをキャンセルしました。", "Export cancelled."); }
             catch (Exception exception) { SetError(exception); Debug.LogException(exception); }
@@ -637,7 +655,7 @@ namespace Baku.MaterialOverrideVrmVRC
                 if (string.IsNullOrEmpty(output)) return;
                 await ExportIndividualAsync(output);
                 SetMessage("エクスポート完了: " + DisplayOutputPath(output), "Export complete: " + DisplayOutputPath(output));
-                EditorUtility.DisplayDialog("Material Override VRM for VRChat", "Avatar file (.mouv) exported successfully.", "OK");
+                ShowExportSuccessDialog(".mouv");
             }
             catch (Exception e) { SetError(e); Debug.LogException(e); }
             finally { busy = false; ApplyExportMethod(); RefreshExporterAvatar(); Repaint(); }
