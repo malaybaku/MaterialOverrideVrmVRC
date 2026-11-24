@@ -23,7 +23,6 @@ namespace Baku.MaterialOverrideVrmVRC
         enum ExportMethod { Batch, Individual }
         [SerializeField] Language language;
         [SerializeField] ExportMethod exportMethod;
-        [SerializeField] string batchVrmPath = "";
         // Temporary preview control; remove after checking the unavailable-API layout.
         [SerializeField] GameObject avatar;
         [SerializeField] UnityEngine.Object vrm;
@@ -35,11 +34,6 @@ namespace Baku.MaterialOverrideVrmVRC
         {
             get => SessionState.GetBool("Mouv.Export.KeepMaterialInformation", false);
             set => SessionState.SetBool("Mouv.Export.KeepMaterialInformation", value);
-        }
-        bool KeepProjectVrm
-        {
-            get => SessionState.GetBool("Mouv.Export.KeepProjectVrm", false);
-            set => SessionState.SetBool("Mouv.Export.KeepProjectVrm", value);
         }
         [SerializeField] bool useLatestSnapshot = true;
         bool busy, showAdvanced;
@@ -370,17 +364,6 @@ namespace Baku.MaterialOverrideVrmVRC
                             EditorGUIUtility.labelWidth = Mathf.Max(previousLabelWidth,
                                 EditorStyles.label.CalcSize(new GUIContent(Text("エクスポートしたマテリアル情報をプロジェクトにも残す",
                                     "Keep exported material information in the project too"))).x + 8);
-                            KeepProjectVrm = EditorGUILayout.Toggle(Text("VRMをプロジェクトにも残す", "Keep VRM in the project too"), KeepProjectVrm);
-                            using (new EditorGUI.DisabledScope(!KeepProjectVrm))
-                            {
-                                batchVrmPath = EditorGUILayout.TextField(Text("VRMの保存先 (Assets 以下のパス)", "VRM output path (under Assets)"), batchVrmPath);
-                                using (new EditorGUILayout.HorizontalScope())
-                                {
-                                    GUILayout.Space(15);
-                                    GUILayout.Label(Text("* 未指定の場合、MaterialOverrideVrm/ 以下に既存ファイルと重複しない名前で保存します。",
-                                        "* If empty, the file is saved under MaterialOverrideVrm/ with a name that does not conflict with existing files."), EditorStyles.wordWrappedLabel);
-                                }
-                            }
                             KeepMaterialInformation = EditorGUILayout.Toggle(Text("エクスポートしたマテリアル情報をプロジェクトにも残す", "Keep exported material information in the project too"), KeepMaterialInformation);
                         }
                         keepUrp = EditorGUILayout.Toggle(Text("エクスポート後もURPを維持", "Keep URP after export"), keepUrp);
@@ -441,14 +424,13 @@ namespace Baku.MaterialOverrideVrmVRC
             try
             {
                 batchBridge.ValidateAvatar(avatar);
-                if (KeepProjectVrm) MouvBatchExporter.ResolveVrmPath(batchVrmPath, avatar.name);
                 var output = EditorUtility.SaveFilePanel(Text(".mouvをエクスポート", "Export .mouv"), "", avatar.name, "mouv");
                 if (string.IsNullOrEmpty(output)) return;
                 busy = true;
                 ApplyExportMethod();
                 RefreshExporterAvatar();
-                var result = await MouvBatchExporter.ExportAsync(avatar, batchVrmPath, output, urp, keepUrp, !KeepMaterialInformation, KeepProjectVrm,
-                    japanese: language == Language.Japanese);
+                var result = await MouvBatchExporter.ExportAsync(avatar, output, urp, keepUrp,
+                    temporarySnapshot: !KeepMaterialInformation, japanese: language == Language.Japanese);
                 SetMessage("エクスポート完了\nVRM: " + DisplayOutputPath(result.VrmPath) + "\n.mouv: " + DisplayOutputPath(output),
                     "Export complete\nVRM: " + DisplayOutputPath(result.VrmPath) + "\n.mouv: " + DisplayOutputPath(output));
                 ShowExportSuccessDialog(".mouv, .vrm");
