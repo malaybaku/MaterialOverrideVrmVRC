@@ -30,6 +30,7 @@ namespace Baku.MaterialOverrideVrmVRC
         [SerializeField] MaterialSnapshot snapshot;
         [SerializeField] MaterialSnapshot automaticSnapshot, manualSnapshot;
         [SerializeField] bool keepUrp;
+        [SerializeField] bool batchPreserveExtraMaterialSlots = true;
         bool KeepMaterialInformation
         {
             get => SessionState.GetBool("Mouv.Export.KeepMaterialInformation", false);
@@ -342,9 +343,25 @@ namespace Baku.MaterialOverrideVrmVRC
                             RefreshExporterAvatar();
                         }
                     }
+                    var component = avatar ? avatar.GetComponent<CaptureMouvMaterials>() : null;
+                    using (new EditorGUI.DisabledScope(!captureReady))
+                    {
+                        var preserve = DrawExtraMaterialSlotsToggle(!component || component.PreserveExtraMaterialSlots);
+                        if (component && preserve != component.PreserveExtraMaterialSlots)
+                        {
+                            Undo.RecordObject(component, "Change extra material slot handling");
+                            component.PreserveExtraMaterialSlots = preserve;
+                            PrefabUtility.RecordPrefabInstancePropertyModifications(component);
+                        }
+                    }
                 }
             }
         }
+
+        bool DrawExtraMaterialSlotsToggle(bool value) => EditorGUILayout.ToggleLeft(new GUIContent(
+            Text("余剰マテリアルスロットを保持", "Preserve extra material slots"),
+            Text("FakeShadow などの重ね描きを .mouv に保持します。中間出力の VRM では見え方が変わる場合があります。",
+                "Preserve layered materials such as FakeShadow in the .mouv. The intermediate VRM may look different.")), value);
 
         void DrawAdvancedSettings(bool batch = false)
         {
@@ -361,6 +378,7 @@ namespace Baku.MaterialOverrideVrmVRC
                     {
                         if (batch)
                         {
+                            batchPreserveExtraMaterialSlots = DrawExtraMaterialSlotsToggle(batchPreserveExtraMaterialSlots);
                             EditorGUIUtility.labelWidth = Mathf.Max(previousLabelWidth,
                                 EditorStyles.label.CalcSize(new GUIContent(Text("エクスポートしたマテリアル情報をプロジェクトにも残す",
                                     "Keep exported material information in the project too"))).x + 8);
@@ -430,7 +448,8 @@ namespace Baku.MaterialOverrideVrmVRC
                 ApplyExportMethod();
                 RefreshExporterAvatar();
                 var result = await MouvBatchExporter.ExportAsync(avatar, output, urp, keepUrp,
-                    temporarySnapshot: !KeepMaterialInformation, japanese: language == Language.Japanese);
+                    temporarySnapshot: !KeepMaterialInformation, japanese: language == Language.Japanese,
+                    preserveExtraMaterialSlots: batchPreserveExtraMaterialSlots);
                 SetMessage("エクスポート完了\nVRM: " + DisplayOutputPath(result.VrmPath) + "\n.mouv: " + DisplayOutputPath(output),
                     "Export complete\nVRM: " + DisplayOutputPath(result.VrmPath) + "\n.mouv: " + DisplayOutputPath(output));
                 ShowExportSuccessDialog(".mouv, .vrm");

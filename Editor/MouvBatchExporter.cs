@@ -25,8 +25,12 @@ namespace Baku.MaterialOverrideVrmVRC
         }
         public static bool IsRunning { get; private set; }
 
-        public static async Task<Result> ExportAsync(GameObject sourceAvatar, string mouvPath, RenderPipelineAsset pipeline,
+        public static Task<Result> ExportAsync(GameObject sourceAvatar, string mouvPath, RenderPipelineAsset pipeline,
             bool keepPipeline, bool temporarySnapshot = false, bool japanese = true)
+            => ExportAsync(sourceAvatar, mouvPath, pipeline, keepPipeline, temporarySnapshot, japanese, preserveExtraMaterialSlots: true);
+
+        public static async Task<Result> ExportAsync(GameObject sourceAvatar, string mouvPath, RenderPipelineAsset pipeline,
+            bool keepPipeline, bool temporarySnapshot, bool japanese, bool preserveExtraMaterialSlots)
         {
             if (IsRunning || EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode)
                 throw new MouvBatchExportException("Unityの処理が完了してから再実行してください。", "Wait for Unity to finish its current operation.");
@@ -73,6 +77,7 @@ namespace Baku.MaterialOverrideVrmVRC
                 AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
                 clone = Object.Instantiate(sourceAvatar);
                 clone.name = sourceAvatar.name;
+                clone.GetComponent<CaptureMouvMaterials>().PreserveExtraMaterialSlots = preserveExtraMaterialSlots;
                 // NDMF records the clone's scene in its error report; keep normal scene membership.
                 BuildContext context;
                 using (MouvCapturePlugin.AssociateSource(clone, sourceAvatar, temporaryFolder))
