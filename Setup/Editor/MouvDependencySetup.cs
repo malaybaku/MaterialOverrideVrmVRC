@@ -38,7 +38,19 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
         public static bool IsReady { get; private set; }
         public static string InstalledVersion(string name) => packages.FirstOrDefault(p => p.name == name)?.version;
 
-        static MouvDependencySetup() => EditorApplication.delayCall += Refresh;
+        static MouvDependencySetup() => EditorApplication.delayCall += RefreshOnLoad;
+
+        static void RefreshOnLoad()
+        {
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+            {
+                EditorApplication.delayCall += RefreshOnLoad;
+                return;
+            }
+
+            Refresh();
+            MouvSetupWindow.ShowIfNeeded();
+        }
 
         public static void Refresh()
         {
@@ -80,6 +92,8 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
     {
         const string WindowTitle = "Setup: Material Override VRM for VRChat";
         const string UsageUrl = "https://github.com/malaybaku/MaterialOverrideVrmVRC/blob/main/README_usage.md";
+        const string SetupShownKey = "Baku.MaterialOverrideVrmVRC.SetupShown";
+        static readonly string AutoShowKey = "Baku.MaterialOverrideVrmVRC.AutoShowSetup." + Hash128.Compute(Application.dataPath);
         enum Language { Japanese, English }
         [SerializeField] Language language;
         Vector2 scroll;
@@ -89,11 +103,30 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
         bool showNdmfInstructions;
         string Text(string japanese, string english) => language == Language.Japanese ? japanese : english;
 
+        internal static void ShowIfNeeded()
+        {
+            if (MouvDependencySetup.IsReady)
+            {
+                SessionState.EraseBool(SetupShownKey);
+                return;
+            }
+
+            if (Application.isBatchMode || EditorApplication.isPlayingOrWillChangePlaymode ||
+                !EditorPrefs.GetBool(AutoShowKey, true) || SessionState.GetBool(SetupShownKey, false))
+                return;
+
+            SessionState.SetBool(SetupShownKey, true);
+            if (!HasOpenInstances<MouvSetupWindow>())
+                GetWindow<MouvSetupWindow>(WindowTitle);
+        }
+
         [MenuItem("Tools/Material Override VRM/For VRChat: Setup", false, 990)]
         public static void Open()
         {
             MouvDependencySetup.Refresh();
             GetWindow<MouvSetupWindow>(WindowTitle);
+            if (!MouvDependencySetup.IsReady)
+                SessionState.SetBool(SetupShownKey, true);
         }
         void OnEnable()
         {
@@ -121,6 +154,13 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
                     GUILayout.FlexibleSpace();
                     language = (Language)EditorGUILayout.EnumPopup(language, GUILayout.Width(125));
                 }
+
+                EditorGUILayout.Space();
+                var autoShow = EditorPrefs.GetBool(AutoShowKey, true);
+                var newAutoShow = EditorGUILayout.ToggleLeft(
+                    Text("セットアップが必要な場合は自動でこのウィンドウを開く", "Automatically open this window when setup is required"), autoShow);
+                if (newAutoShow != autoShow)
+                    EditorPrefs.SetBool(AutoShowKey, newAutoShow);
 
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField(Text("セットアップ状態", "Setup status"), EditorStyles.boldLabel);
