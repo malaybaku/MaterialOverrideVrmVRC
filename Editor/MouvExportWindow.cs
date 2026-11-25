@@ -252,24 +252,13 @@ namespace Baku.MaterialOverrideVrmVRC
 
         void DrawHeader()
         {
+            var previous = language;
+            using (new EditorGUI.DisabledScope(busy))
+                language = MouvWindowHeader.DrawControls(Text("使い方を見る(GitHub)", "Guide (GitHub)"), UsageUrl, language);
+            if (previous != language) { UpdateExporterLabels(); ApplyExportMethod(); }
+            MouvWindowHeader.Draw(Text("アバターを .mouv にエクスポート", "Export Avatar to .mouv"));
             using (new EditorGUI.DisabledScope(busy))
             {
-                var usageLinkStyle = new GUIStyle(EditorStyles.linkLabel) { wordWrap = true };
-                var usageLink = new GUIContent(Text("使い方を見る(GitHub)", "View usage guide (GitHub)"), UsageUrl);
-                var usageLinkRect = GUILayoutUtility.GetRect(usageLink, usageLinkStyle, GUILayout.ExpandWidth(false));
-                EditorGUIUtility.AddCursorRect(usageLinkRect, MouseCursor.Link);
-                if (GUI.Button(usageLinkRect, usageLink, usageLinkStyle))
-                    Application.OpenURL(UsageUrl);
-                GUILayout.Space(EditorGUIUtility.singleLineHeight * 0.3f);
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    GUILayout.Label("Language", GUILayout.Width(65));
-                    GUILayout.FlexibleSpace();
-                    var previous = language;
-                    language = (Language)EditorGUILayout.EnumPopup(language, GUILayout.Width(125));
-                    if (previous != language) { UpdateExporterLabels(); ApplyExportMethod(); }
-                }
-                GUILayout.Space(EditorGUIUtility.singleLineHeight * 0.7f);
                 var previousMethod = exportMethod;
                 exportMethod = (ExportMethod)EditorGUILayout.Popup(Text("エクスポート方法", "Export method"), (int)exportMethod,
                     new[] { Text("まとめてエクスポート", "Export all at once"), Text("ステップごとにエクスポート", "Export step by step") });
@@ -579,7 +568,7 @@ namespace Baku.MaterialOverrideVrmVRC
             candidate.GetComponent<UniVRM10.Vrm10Instance>() &&
             string.Equals(Path.GetExtension(AssetDatabase.GetAssetPath(candidate)), ".vrm", StringComparison.OrdinalIgnoreCase);
 
-        static bool IsSceneAvatar(GameObject candidate) => candidate &&
+        internal static bool IsSceneAvatar(GameObject candidate) => candidate &&
             candidate.GetComponent<VRCAvatarDescriptor>() && !EditorUtility.IsPersistent(candidate) &&
             candidate.scene.IsValid() && candidate.scene.isLoaded && PrefabStageUtility.GetPrefabStage(candidate) == null;
 
