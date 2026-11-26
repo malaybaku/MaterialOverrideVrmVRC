@@ -75,7 +75,10 @@ https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM10#v0.131.4
 
 変換元となるアバターをシーン上に配置します。このアバターには `NDMF VRM Exporter` 用のエクスポート設定が指定されている必要があります。VRMへの変換設定の詳細は [NDMF VRM Exporter](https://github.com/hkrn/ndmf-vrm-exporter) の説明を参照してください。
 
-VRM Export Descriptionの `MToon Options` は基本的にVRM (`.vrm`) の出力にのみ影響し、 `.mouv` での見た目には影響しません。ただし `.mouv` についても、VRM側のMToonをそのまま使うようセットアップされたマテリアルでは影響を受けます。
+本パッケージを使ううえでの `NDMF VRM Exporter` の使用については下記も注意してください。
+
+- 本パッケージではパーフェクトシンクのセットアップ補助機能を実装しています。詳細は [(任意) パーフェクトシンク用のセットアップを行う](#perfect-sync-expressions) を参照してください。
+- VRM Export Descriptionの `MToon Options` は基本的にVRM (`.vrm`) の出力にのみ影響し、 `.mouv` での見た目には影響しません。ただし `.mouv` についても、VRM側のMToonをそのまま使うようセットアップされたマテリアルでは影響を受けます。
 
 ### セットアップウィンドウを開く
 
@@ -166,20 +169,53 @@ VRMの出力とあわせて、アバターのマテリアルおよびテクス�
 
 ### 「余剰マテリアルスロットを保持」オプションについて
 
-lilToon の FakeShadow で前髪の影を作るときなど、同一のメッシュに対して重ね描きをする狙いでサブメッシュ数よりも多数のマテリアルを割り当てるセットアップをすることがあります。本パッケージではこのような、マテリアル数の割り当てが多い状態のことを「余剰マテリアル」と呼んでいます。
+lilToon の FakeShadow で前髪の影を作るときなど、同一のメッシュに対して重ね描きをする狙いでサブメッシュ数よりも多数のマテリアルを割り当てるセットアップをすることがあります。本パッケージではこのような、サブメッシュ数を超える数で割り当てたマテリアルを「余剰マテリアル」と呼んでいます。
 
 `.mouv` を作成するとき、余剰マテリアルの情報を割り当てられるようにするためには `.vrm` の生成時点で追加的な加工が必要となるため、本オプションではこの加工を行うかどうかを選択します。
 
-オプションの値によって、下記のように挙動が異なります。
+オプションによって、下記のように挙動が異なります。
 
-- **オン（デフォルト）**: 上述した余剰マテリアルが `.mouv` に引き継げるよう、`.vrm` の作成時点でモデルに加工を行います。 `.mouv` でより見た目が正確に反映されるかわり、 `.vrm` そのものをVRM対応アプリで表示した際の見た目が不自然になることがあります。
-- **オフ**: 余剰マテリアルを引き継ぐための補正を省きます。中間出力の `.vrm` の見た目が崩れにくくなる代わり、`.mouv` に対して FakeShadow 等のマテリアルが適用されなくなります。
+- **オン（デフォルト）**: 上述した余剰マテリアルが `.mouv` に引き継げるよう、`.vrm` の作成時点でモデルに加工を行います。この処理により、 `.mouv` の見た目がよりUnity Editor上の見た目と揃うかわり、中間出力の `.vrm` をVRM対応アプリで表示した際の見た目が不自然になることがあります。
+- **オフ**: 余剰マテリアルを引き継ぐための補正を省きます。中間出力の `.vrm` の見た目が崩れにくくなる代わり、`.mouv` に対して FakeShadow 等のマテリアルが適用されなくなるため、見た目の一致度が下がります。
 
 
 ## エクスポート後の不要なコンポーネント削除について
 
 `まとめてエクスポート` によるエクスポートを一度実行するか、または `ステップごとにエクスポート` のStep1を実行すると、出力元アバターに `Prepare Materials for MOUV Export` コンポーネントがアタッチされ、NDMF VRM Exporterによる変換前にマテリアルのスナップショット情報を保存するようになります。この挙動を停止させるには、同コンポーネントの `Capture` をオフにするか、コンポーネントを削除してください。
 
+
+<a id="perfect-sync-expressions"></a>
+
+## (任意) パーフェクトシンク用のセットアップを行う
+
+パーフェクトシンクの概要は [VMagicMirror の説明](https://malaybaku.github.io/VMagicMirror/tips/perfect_sync/) を参照してください。パーフェクトシンクとはARKit準拠の表情ブレンドシェイプに基づいて高度にアバター表情を動かす機能であり、VRMの非公式な機能の通称です。
+
+### 本パッケージでサポートしている機能
+
+本パッケージでは、モデルに定義済みのブレンドシェイプをVRM出力の表情(Expression)に割り当てる操作をサポートしています。ブレンドシェイプ自体を新規に作成・編集する機能は含みません。
+
+- モデルにARKit準拠の名称のブレンドシェイプがある場合、そのブレンドシェイプをパーフェクトシンク用のExpression群としてセットアップします。例えば、 [Vtuber ARKit52 FacialTracking BlendShapeKey AddOn（BOOTH）](https://charlotta.booth.pm/items/6961828) では対応アバターにARKit向けのブレンドシェイプ群を適用できます。具体的な対応アバターや利用条件については同ページを確認してください。
+- ARKitではなく、例えば `VRCFaceTracking（VRCFT）` に対応したモデルがある場合、本パッケージの機能でパーフェクトシンク用のExpressionを一括生成したのち、`VRM Export Description` コンポーネント上でBlendShapeを割り当てていくことができます。表情の対応表は [VRCFaceTrackingのドキュメント](https://docs.vrcft.io/docs/tutorial-avatars/tutorial-avatars-extras/compatibility/arkit#arkit-comparison) 等で確認できます。
+
+
+### セットアップ方法
+
+`Tools > Material Override VRM > For VRChat (Util): VRM Perfect Sync Setup...` から、パーフェクトシンク表情設定ウィンドウを開きます。
+
+- `対象アバター` に、`VRC Avatar Descriptor` および `VRM Export Description` がアタッチされたシーン上のアバターを指定します。
+- `Expressionを作成` を選択します。
+
+`Expressionを作成` を行うと `VRM Export Description` の `Expressions > Custom` にパーフェクトシンク用のExpressionが一括で生成されます。このとき、モデルに `eyeBlinkLeft` など、ARKitに準拠した名称のブレンドシェイプがあれば、Expressionに自動で紐づけられます。この方法で紐づけるブレンドシェイプが見つからない場合、空のExpressionが作成されます。
+
+セットアップ方法については下記の2種類をサポートしています。
+
+- `BlendShape を直接割り当てる`: ブレンドシェイプを単に割り当てます。(todo: ndmf vrm exporterのドキュメントにおいて、AAOの挙動を理由にコッチが推奨である旨を主張してるURLを引用し、こちらが推奨である旨を述べたい)
+- `AnimationClip を作成する`: 各Expressionに対応した `AnimationClip` を作成します。ブレンドシェイプを一部弱めて適用したい場合や、一つのパーフェクトシンク用Expressionで複数のBlendShapeを動かしたい場合はこちらを選択します。`AnimationClip` を経由してExpressionのウェイト等を調整する方法についてはNDMF VRM Exporterのドキュメントを参照してください。
+
+`詳細` では下記の機能が使えます。
+
+- `定義済みのExpressionは変更しない`: このオプションをオンにして `Expressionを作成` を行うと、未定義のExpressionだけ生成し、既存のExpressionを上書きしなくなります。一部のExpressionだけを手作業で削除しており、それを再生成させたい場合などに使用します。
+- `パーフェクトシンク用 Expression を削除`: パーフェクトシンク用のExpressionを削除します。セットアップを最初からやり直したい場合に使用します。
 
 ## トラブルシューティング
 
