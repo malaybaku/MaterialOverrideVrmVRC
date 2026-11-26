@@ -6,6 +6,13 @@ VRChat向けにセットアップしたアバターから、[VMagicMirror](https
 
 Unity 2022.3のVRChatアバタープロジェクト向けパッケージです。
 
+## 安定性について
+
+本パッケージはベータ版であり、とくに下記の点で不安定な挙動となる可能性があります。
+
+- パッケージ公開から間もないため、十分数のアバター/プロジェクトでは未検証です。
+- このパッケージではURP(Universal Render Pipeline)向けのデータを出力するため、VRChatのBuilt-in Render Pipelineとの差異に起因した問題を起こす場合があります。
+
 ## 導入と使い方
 
 1. [baxter's VPM Packages](https://malaybaku.github.io/baku-vpm/)をVCC / ALCOMへ追加し、本パッケージ (`Material Override VRM for VRChat`) をインストールします。
