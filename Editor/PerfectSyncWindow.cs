@@ -9,8 +9,6 @@ namespace Baku.MaterialOverrideVrmVRC
     {
         const string UsageUrl = "https://github.com/malaybaku/MaterialOverrideVrmVRC/blob/main/README_usage.md#perfect-sync-expressions";
         enum Language { Japanese, English }
-        enum SummaryPreview { Normal, Complete, Partial, Warning }
-        [NonSerialized] SummaryPreview debugPreview;
         [SerializeField] Language language;
         [SerializeField] GameObject avatar;
         [SerializeField] bool useClips;
@@ -64,9 +62,6 @@ namespace Baku.MaterialOverrideVrmVRC
             language = MouvWindowHeader.DrawControls(Text("使い方を見る(GitHub)", "Guide (GitHub)"), UsageUrl, language);
             if (language != previous) result = null;
             MouvWindowHeader.Draw(Text("VRM出力用のパーフェクトシンク表情設定", "Perfect Sync Expression Settings for VRM Export"));
-            debugPreview = (SummaryPreview)EditorGUILayout.Popup(Text("デバッグ：サマリー", "Debug: summary"),
-                (int)debugPreview, new[] { Text("本来の表示", "Normal"), Text("全件有効", "Complete"),
-                    Text("一部未割り当て", "Partially unassigned"), Text("過半数未割り当て", "Mostly unassigned") });
             DrawSetup();
         }
 
@@ -130,7 +125,7 @@ namespace Baku.MaterialOverrideVrmVRC
                     RefreshSummary();
                 }
             }
-            if (ready || debugPreview != SummaryPreview.Normal) DrawSummary();
+            if (ready) DrawSummary();
             if (string.IsNullOrEmpty(result)) return;
             GUILayout.Space(4);
             var resultStyle = new GUIStyle(EditorStyles.helpBox);
@@ -162,16 +157,9 @@ namespace Baku.MaterialOverrideVrmVRC
         void DrawSummary()
         {
             if (summaryError != null) EditorGUILayout.HelpBox(summaryError, MessageType.Warning);
-            var display = counts;
-            switch (debugPreview)
-            {
-                case SummaryPreview.Complete: display = (52, 52); break;
-                case SummaryPreview.Partial: display = (52, 48); break;
-                case SummaryPreview.Warning: display = (52, 5); break;
-            }
-            if (!display.HasValue) return;
+            if (!counts.HasValue) return;
 
-            var (defined, effective) = display.Value;
+            var (defined, effective) = counts.Value;
             GUILayout.Space(6);
             EditorGUILayout.LabelField(Text($"パーフェクトシンク用のExpression数: {defined}/52",
                 $"Defined Perfect Sync expressions: {defined}/52"), EditorStyles.wordWrappedLabel);
