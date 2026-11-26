@@ -144,18 +144,8 @@ namespace Baku.MaterialOverrideVrmVRC.Setup
             scroll = windowScroll.scrollPosition;
             using (new EditorGUILayout.VerticalScope(windowPadding))
             {
-                var usageLink = new GUIContent(Text("使い方を見る(GitHub)", "View usage guide (GitHub)"), UsageUrl);
-                if (EditorGUILayout.LinkButton(usageLink, GUILayout.Width(EditorStyles.linkLabel.CalcSize(usageLink).x)))
-                    Application.OpenURL(UsageUrl);
-                GUILayout.Space(EditorGUIUtility.singleLineHeight * 0.3f);
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    GUILayout.Label("Language", GUILayout.Width(65));
-                    GUILayout.FlexibleSpace();
-                    language = (Language)EditorGUILayout.EnumPopup(language, GUILayout.Width(125));
-                }
-
-                EditorGUILayout.Space();
+                language = MouvWindowHeader.DrawControls(Text("使い方を見る(GitHub)", "Guide (GitHub)"), UsageUrl, language);
+                MouvWindowHeader.Draw(Text("依存パッケージのセットアップ", "Dependency Setup"));
                 var autoShow = EditorPrefs.GetBool(AutoShowKey, true);
                 var newAutoShow = EditorGUILayout.ToggleLeft(
                     Text("セットアップが必要な場合は自動でこのウィンドウを開く", "Automatically open this window when setup is required"), autoShow);

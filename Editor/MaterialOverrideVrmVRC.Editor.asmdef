@@ -1,6 +1,7 @@
 {
   "name": "MaterialOverrideVrmVRC.Editor",
   "references": [
+    "MaterialOverrideVrmVRC.Setup.Editor",
     "MaterialOverrideVrmVRC.Runtime",
     "MaterialOverridableVrm.Runtime",
     "MaterialOverridableVrm.Editor",
