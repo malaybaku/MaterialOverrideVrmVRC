@@ -224,7 +224,11 @@ lilToon の FakeShadow で前髪の影を作るときなど、同一のメッシ
 - `対象アバター` に、`VRC Avatar Descriptor` および `VRM Export Description` がアタッチされたシーン上のアバターを指定します。
 - `Expressionを作成` を選択します。
 
-`Expressionを作成` を行うと `VRM Export Description` の `Expressions > Custom` にパーフェクトシンク用のExpressionが一括で生成されます。このとき、モデルに `eyeBlinkLeft` など、ARKitに準拠した名称のブレンドシェイプがあれば、Expressionに自動で紐づけられます。この方法で紐づけるブレンドシェイプが見つからない場合、空のExpressionが作成されます。
+`Expressionを作成` を行うと `VRM Export Description` の `Expressions > Custom` にパーフェクトシンク用Expressionが一括で生成されます。それぞれの各Expressionについて、Expressionと同名のブレンドシェイプをモデル上で検索し、見つかった個数に応じて割り当て処理を行います。
+
+- ブレンドシェイプがちょうど1つ見つかった場合、そのブレンドシェイプが割り当てられます。
+- ブレンドシェイプが見つからない場合は割り当てが空になり、実行結果に「未一致」として表示されます。
+- ブレンドシェイプが複数見つかった場合も割り当てが空になり、実行結果に「複数候補」として表示します。たとえば顔とまつ毛のメッシュが分かれており、両方に `eyeBlinkLeft` が存在するときは本ケースに該当します。
 
 セットアップ方法については下記の2種類をサポートしています。いずれの場合も、セットアップ結果を確認・調整する場合は [NDMF VRM Exporterのドキュメント](https://github.com/hkrn/ndmf-vrm-exporter/blob/main/docs~/component.md#expressions) を参照してください。
 
