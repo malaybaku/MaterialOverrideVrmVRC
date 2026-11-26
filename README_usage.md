@@ -207,12 +207,12 @@ lilToon の FakeShadow で前髪の影を作るときなど、同一のメッシ
 
 `Expressionを作成` を行うと `VRM Export Description` の `Expressions > Custom` にパーフェクトシンク用のExpressionが一括で生成されます。このとき、モデルに `eyeBlinkLeft` など、ARKitに準拠した名称のブレンドシェイプがあれば、Expressionに自動で紐づけられます。この方法で紐づけるブレンドシェイプが見つからない場合、空のExpressionが作成されます。
 
-セットアップ方法については下記の2種類をサポートしています。
+セットアップ方法については下記の2種類をサポートしています。いずれの場合も、セットアップ結果を確認・調整する場合は [NDMF VRM Exporterのドキュメント](https://github.com/hkrn/ndmf-vrm-exporter/blob/main/docs~/component.md#expressions) を参照してください。
 
-- `BlendShape を直接割り当てる`: ブレンドシェイプを単に割り当てます。(todo: ndmf vrm exporterのドキュメントにおいて、AAOの挙動を理由にコッチが推奨である旨を主張してるURLを引用し、こちらが推奨である旨を述べたい)
-- `AnimationClip を作成する`: 各Expressionに対応した `AnimationClip` を作成します。ブレンドシェイプを一部弱めて適用したい場合や、一つのパーフェクトシンク用Expressionで複数のBlendShapeを動かしたい場合はこちらを選択します。`AnimationClip` を経由してExpressionのウェイト等を調整する方法についてはNDMF VRM Exporterのドキュメントを参照してください。
+- `BlendShape を直接割り当てる (推奨)`: Expressionごとに単一のブレンドシェイプを紐づけます。セットアップが簡易であり、かつAvatar Optimizerとの相性がよいため、このオプションを推奨しています。
+- `AnimationClip を作成する`: 各Expressionに対応した `AnimationClip` を作成します。ブレンドシェイプを弱めて適用したい場合や、1つのExpressionで複数のBlendShapeを動かしたい場合はこちらを選択します。
 
-`詳細` では下記の機能が使えます。
+`詳細` では下記の機能が利用できます。
 
 - `定義済みのExpressionは変更しない`: このオプションをオンにして `Expressionを作成` を行うと、未定義のExpressionだけ生成し、既存のExpressionを上書きしなくなります。一部のExpressionだけを手作業で削除しており、それを再生成させたい場合などに使用します。
 - `パーフェクトシンク用 Expression を削除`: パーフェクトシンク用のExpressionを削除します。セットアップを最初からやり直したい場合に使用します。
